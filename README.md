@@ -1,2 +1,1 @@
-# JuiceBoost
-JuiceBoost API
+# Cared4 REST API
