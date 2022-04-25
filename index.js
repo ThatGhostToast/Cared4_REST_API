@@ -1,12 +1,14 @@
 // Application Dependencies
-const { JuiceDAO } = require('./lib/app/database/JuiceDAO.js')
+const { SicknessDAO } = require('./lib/app/database/SicknessDAO.js')
+const { UserDAO } = require('./lib/app/database/UserDAO.js')
 const cors = require("cors");
 
 const bodyParser = require('body-parser');
 
 // Create instance of an Express Application on Port 3000
 const express = require('express');
-const { Juice } = require('./lib/app/models/Juice.js');
+const { Sicknesses } = require('./lib/app/models/Sicknesses.js');
+const { User } = require('./lib/app/models/Users.js');
 const app = express();
 const port = 3000;
 app.use(bodyParser.json());
@@ -30,106 +32,106 @@ app.get('/', function (_req, res)
     res.send('This is the default root Route.');
 })
 
-// GET Route at '/juice' that returns all Juices from the database
-app.get('/juice', function (_req, res)
+// GET Route at '/sickness' that returns all sicknesses from the database
+app.get('/sicknesses', function (_req, res)
 {
-    // Return Juice List as JSON, call JuiceDAO.findJuice(), and return JSON array of Juice (a string)
-    console.log('In GET /juice Route');
-    let dao = new JuiceDAO(dbHost, dbPort, dbUsername, dbPassword);
-    dao.findJuice(function(juice)
+    // Return sickness List as JSON, call SicknassDAO.findSickness(), and return JSON array of Sickness (a string)
+    console.log('In GET /sickness Route');
+    let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
+    dao.findSickness(function(sickness)
     {
-        res.json(juice);
+        res.json(sickness);
     });
 })
 
-// GET Route that does a wildcard search for all Juices searching by id from the database
-app.get('/juices/search/juice/:id', function (req, res)
+// GET Route that does a wildcard search for all sicknesses searching by id from the database
+app.get('/sicknesses/search/sickness/:id', function (req, res)
 {
-    // Return Albums List as JSON, call JuiceDAO.findJuiceById(), and return JSON array of Albums
-    console.log('In GET /juice/searach/juice Route for ' + req.params.id);
-    let dao = new JuiceDAO(dbHost, dbPort, dbUsername, dbPassword);
-    dao.findJuiceById(req.params.id, function(juice)
+    // Return sicknesses List as JSON, call SicknessDAO.findSicknessById(), and return JSON array of sicknesses
+    console.log('In GET /sicknesses/searach/sickness Route for ' + req.params.id);
+    let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
+    dao.findSicknessById(req.params.id, function(sickness)
     {
-        if (juice == null)
+        if (sickness == null)
         {
-            res.status(200).json({error: "INVALID JUICE ID"});
+            res.status(200).json({error: "INVALID SICKNESS ID"});
         } else {
-            res.status(200).json(juice);
+            res.status(200).json(sickness);
         }
     });
 })
 
-// POST Route at '/juice' that adds a juice to the database
-app.post('/juice', function (req, res)
+// POST Route at '/sickness' that adds a sickness to the database
+app.post('/sickness', function (req, res)
 {
     console.log(req.body);
     
-    // If invalid POST Body then return 400 response else add Juice to the database
-    console.log('In POST /juice Route with Post of ' + JSON.stringify(req.body));
+    // If invalid POST Body then return 400 response else add Sickness to the database
+    console.log('In POST /sickness Route with Post of ' + JSON.stringify(req.body));
     if(!req.body)
     {
         // Check for valid POST Body, note this should validate EVERY field of the POST
-        res.status(400).json({error: "Invalid Juice Posted"});
+        res.status(400).json({error: "Invalid Sickness Posted"});
     }
     else
     {
-        // New juice model
-        let juice = new Juice(req.body.id, req.body.name, req.body.ingredients, req.body.benefits, req.body.htm, req.body.imageName);
+        // New Sickness model
+        let sickness = new Sicknesses(req.body.id, req.body.name, req.body.commonName, req.body.symptoms, req.body.rarity, req.body.severity, req.body.cure, req.body.treatment, req.body.naturalTreatment, req.body.strongAgainst);
 
-        // Call juiceDAO.create() to create a juice from Posted Data and return an OK response     
-        let dao = new JuiceDAO(dbHost, dbPort, dbUsername, dbPassword);
-        dao.create(juice, function(juiceId)
+        // Call sicknessDAO.create() to create a sickness from Posted Data and return an OK response     
+        let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
+        dao.create(sickness, function(sicknessId)
         {
-            if(juiceId == -1)
-                res.status(200).json({"error" : "Creating Juice failed"})
+            if(sicknessId == -1)
+                res.status(200).json({"error" : "Creating Sickness failed"})
             else
-                res.status(200).json({"success" : "Creating Juice passed with an Album ID of " + juiceId});
+                res.status(200).json({"success" : "Creating Sickness passed with an ID of " + sicknessId});
         });     
       }
 })
 
-// DELETE Route at '/juice/:id' that deletes juice at a given Juice ID from the database
-app.delete('/juice/:id', function (req, res)
+// DELETE Route at '/sickness/:id' that deletes sicknesses at a given sickness ID from the database
+app.delete('/sickness/:id', function (req, res)
 {
-    // Get the juice
-    console.log('In DELETE /albums Route with ID of ' + req.params.id);
-    let juiceId = Number(req.params.id);
+    // Get the sickness
+    console.log('In DELETE /sickness Route with ID of ' + req.params.id);
+    let sicknessId = Number(req.params.id);
  
-    // Call JuiceDAO.delete() to delete an Juice from the database and return if passed
-    let dao = new JuiceDAO(dbHost, dbPort, dbUsername, dbPassword);
-    dao.delete(juiceId, function(changes)
+    // Call SicknessDAO.delete() to delete a sickness from the database and return if passed
+    let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
+    dao.delete(sicknessId, function(changes)
     {
         if(changes == 0)
-            res.status(200).json({"error" : "Delete Juice failed"})
+            res.status(200).json({"error" : "Delete Sickness failed"})
         else
-            res.status(200).json({"success" : "Delete Juice passed"})
+            res.status(200).json({"success" : "Delete Sickness passed"})
     });
  })
 
-// PUT Route at '/Juice' that updates a juice in the database
-app.put('/juice', function (req, res)
+// PUT Route at '/sickness' that updates a sickness in the database
+app.put('/sickness', function (req, res)
 {
     console.log(req.body);
-    // If invalid PUT Body then return 400 response else update juice in the database
-    console.log('In PUT /juice Route with Post of ' + JSON.stringify(req.body));
+    // If invalid PUT Body then return 400 response else update sickness in the database
+    console.log('In PUT /sickness Route with Post of ' + JSON.stringify(req.body));
     if(!req.body)
     {
         // Check for valid PUT Body, note this should validate EVERY field of the POST
-        res.status(400).json({error: "Invalid Juice Posted"});
+        res.status(400).json({error: "Invalid sickness Posted"});
     }
     else
     {
-        // New juice model from Posted Data
-        let juice = new Juice(req.body.id, req.body.name, req.body.ingredients, req.body.benefits, req.body.htm, req.body.imageName);
+        // New sickness model from Posted Data
+        let sickness = new Sicknesses(req.body.id, req.body.name, req.body.commonName, req.body.symptoms, req.body.rarity, req.body.severity, req.body.cure, req.body.treatment, req.body.naturalTreatment, req.body.strongAgainst);
 
-        // Call MusicDAO.update() to update a juice from Posted Data and return an OK response     
-        let dao = new JuiceDAO(dbHost, dbPort, dbUsername, dbPassword);
-        dao.update(juice, function(changes)
+        // Call SicknessDAO.update() to update a sickness from Posted Data and return an OK response     
+        let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
+        dao.update(sickness, function(changes)
         {
             if(changes == 0)
-                res.status(200).json({error : "Updating Juice passed but nothing was changed"})
+                res.status(200).json({error : "Updating Sickness passed but nothing was changed"})
             else
-                res.status(200).json({success : "Updating Juice passed and data was changed"});
+                res.status(200).json({success : "Updating Sickness passed and data was changed"});
         });     
       }
 })

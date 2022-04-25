@@ -1,14 +1,34 @@
-import { Juice } from "../models/Juice";
+import { User } from "../models/Users";
 import * as mysql from "mysql";
 import * as util from "util";
 
-export class JuiceDAO
+/*
+
+   _______________                        |*\_/*|________
+  |  ___________  |     .-.     .-.      ||_/-\_|______  |
+  | |           | |    .****. .****.     | |           | |
+  | |   0   0   | |    .*****.*****.     | |   0   0   | |
+  | |     -     | |     .*********.      | |     -     | |
+  | |   \___/   | |      .*******.       | |   \___/   | |
+  | |___     ___| |       .*****.        | |___________| |
+  |_____|\_/|_____|        .***.         |_______________|
+    _|__|/ \|_|_.............*.............._|________|_
+   / ********** \                          / ********** \
+ /  ************  \                      /  ************  \
+--------------------                    --------------------
+
+DAO file used for connecting the API to the database
+This DAO handles the users table in our database
+
+*/
+
+export class UserDAO
 {
     private host:string = "";
     private port:number = 3306;
     private username:string = "";
     private password:string = "";
-    private schema:string = "Juice-Boost";
+    private schema:string = "Cared4";
     private pool = this.initDbConnection();
     
     /**
@@ -29,12 +49,12 @@ export class JuiceDAO
     }
 
      /**
-     * CRUD method to create a new juice.
+     * CRUD method to create a new user.
      * 
-     * @param juice Juice to insert.
-     * @param callback Callback function with -1 if an error else Juice ID created.  
+     * @param user User to insert.
+     * @param callback Callback function with -1 if an error else User ID created.  
      */
-    public create(juice:Juice, callback: any)
+    public create(user:User, callback: any)
     {
         // Get pooled database connection and run queries   
         this.pool.getConnection(async function(err:any, connection:any)
@@ -45,31 +65,31 @@ export class JuiceDAO
             // Throw error if an error
             if (err) throw err;
 
-            // Use Promisfy Util to make an async function and insert Album
+            // Use Promisfy Util to make an async function and insert User
             connection.query = util.promisify(connection.query);
-            let result1 = await connection.query('INSERT INTO Juices (NAME, INGREDIENTS, BENEFITS, HTM, IMAGENAME) VALUES(?,?,?,?,?)', [juice.Name, juice.Ingredients, juice.Benefits, juice.Htm, juice.ImageName]);
+            let result1 = await connection.query('INSERT INTO `USERS` (FIRSTNAME, LASTNAME, EMAIL, PASSWORD, BIRTHDAY, SEX, CONDITIONS, IMAGE) VALUES(?,?,?,?,?,?,?)', [user.FirstName, user.LastName, user.Email, user.Password, user.Birthday, user.Sex, user.Conditions, user.Image]);
             if(result1.affectedRows != 1)
                callback(-1);
 
-            // Use Promisfy Util to make an async function and run query to insert all Tracks for this Album
-            let juiceId = result1.insertId;
+            //getting the id of the newly created User
+            let userId = result1.insertId;
 
             // Do a callback to return the results
-            callback(juiceId);
+            callback(userId);
         });
     }
 
      /**
-     * CRUD method to return all Juices.
+     * CRUD method to return all Users.
      * 
-     * @param callback Callback function with an Array of type Juice.
+     * @param callback Callback function with an Array of type Users.
      */
-    public findJuice(callback: any)
+    public findUsers(callback: any)
     {
-        // List of Juices to return
-        let juices:Juice[] = [];
+        // List of Users to return
+        let users:User[] = [];
         
-        // Get a pooled connection to the database, run the query to get all the Juices, and return the List of Juices
+        // Get a pooled connection to the database, run the query to get all the users, and return the List of Users
         this.pool.getConnection(async function(err:any, connection:any)
         {
             // Release connection in the pool
@@ -78,24 +98,24 @@ export class JuiceDAO
             // Throw error if an error
             if (err) throw err;
 
-            // Use Promisfy Util to make an async function and run query to get all Juices
+            // Use Promisfy Util to make an async function and run query to get all users
             connection.query = util.promisify(connection.query);
-            let result1 = await connection.query('SELECT * FROM `Juices`');
+            let result1 = await connection.query('SELECT * FROM `USERS`');
             for(let x=0;x < result1.length;++x)
             {
-                // Add Juice and its data to the list
-                juices.push(new Juice(result1[x].ID, result1[x].NAME, result1[x].INGREDIENTS, result1[x].BENEFITS, result1[x].HTM, result1[x].IMAGENAME));
+                // Add user and its data to the list
+                users.push(new User(result1[x].ID, result1[x].FIRSTNAME, result1[x].LASTNAME, result1[x].EMAIL, result1[x].PASSWORD, result1[x].BIRTHDAY, result1[x].SEX, result1[x].CONDITIONS, result1[x].IMAGE));
             }
 
             // Do a callback to return the results
-            callback(juices);
+            callback(users);
          });
      }
 
-     public findJuiceById(id:number, callback: any)
+     public findUserById(id:number, callback: any)
     {
-         // List of Juices to return
-         let juice:Juice;
+         // User that's going to be returned
+         let user:User;
 
         // Get pooled database connection and run queries   
         this.pool.getConnection(async function(err:any, connection:any)
@@ -106,26 +126,26 @@ export class JuiceDAO
             // Throw error if an error
             if (err) throw err;
 
-            // Use Promisfy Util to make an async function and run query to get all Juices for search
+            // Use Promisfy Util to make an async function and run query to get all Users for search
             connection.query = util.promisify(connection.query);
-            let result1 = await connection.query("SELECT * FROM `Juices` WHERE ID = ?", id);
+            let result1 = await connection.query("SELECT * FROM `USERS` WHERE ID = ?", id);
             for(let x=0;x < result1.length;++x)
             {
-                // Add Album and its Tracks to the list
-                juice = new Juice(result1[x].ID, result1[x].NAME, result1[x].INGREDIENTS, result1[x].BENEFITS, result1[x].HTM, result1[x].IMAGENAME); 
+                // Get user from the database to return
+                user = new User(result1[x].ID, result1[x].FIRSTNAME, result1[x].LASTNAME, result1[x].EMAIL, result1[x].PASSWORD, result1[x].BIRTHDAY, result1[x].SEX, result1[x].CONDITIONS, result1[x].IMAGE);
             }
             // Do a callback to return the results
-            callback(juice);
+            callback(user);
          });
     }
 
      /**
-     * CRUD method to update a Juice.
+     * CRUD method to update a User.
      * 
-     * @param juice Juice to update.
+     * @param user User to update.
      * @param callback Callback function with number of rows updated.  
      */
-    public update(juice:Juice, callback: any)
+    public update(user:User, callback: any)
     {
          // Get pooled database connection and run queries   
          this.pool.getConnection(async function(err:any, connection:any)
@@ -136,10 +156,10 @@ export class JuiceDAO
              // Throw error if an error
             if (err) throw err;
  
-             // Use Promisfy Util to make an async function and update Juice
+             // Use Promisfy Util to make an async function and update User
             let changes = 0;
             connection.query = util.promisify(connection.query);
-            let result1 = await connection.query("UPDATE Juices SET NAME=?, INGREDIENTS=?, BENEFITS=?, HTM=?, IMAGENAME=? WHERE ID=?", [juice.Name, juice.Ingredients, juice.Benefits, juice.Htm, juice.ImageName, juice.Id]);
+            let result1 = await connection.query("UPDATE `USERS` SET NAME=?, INGREDIENTS=?, BENEFITS=?, HTM=?, IMAGENAME=? WHERE ID=?", [sickness.Name, sickness.CommonName, sickness.Symptoms, sickness.Rarity, sickness.Severity, sickness.Cure, sickness.Treatment, sickness.NaturalTreatment, sickness.StrongAgainst]);
             if(result1.changedRows != 0)
                 ++changes;
             console.log(changes);
@@ -149,12 +169,12 @@ export class JuiceDAO
      }
 
      /**
-     * CRUD method to delete a Juice.
+     * CRUD method to delete a Sickness.
      * 
-     * @param juiceId Juice ID to delete.
+     * @param sicknessId Sickness ID to delete.
      * @param callback Callback function with number of rows deleted.  
      * */
-    public delete(juiceId:number, callback: any)
+    public delete(sicknessId:number, callback: any)
     {
         // Get pooled database connection and run queries   
         this.pool.getConnection(async function(err:any, connection:any)
@@ -165,10 +185,10 @@ export class JuiceDAO
             // Throw error if an error
            if (err) throw err;
 
-            // Use Promisfy Util to make an async function and run query to delete juice
+            // Use Promisfy Util to make an async function and run query to delete Sickness
             let changes = 0;
             connection.query = util.promisify(connection.query);
-            let result1 = await connection.query('DELETE FROM Juices WHERE ID=?', [juiceId]);
+            let result1 = await connection.query('DELETE FROM `SICKNESSES` WHERE ID=?', [sicknessId]);
             changes = changes + result1.affectedRows;
 
             // Do a callback to return the results
