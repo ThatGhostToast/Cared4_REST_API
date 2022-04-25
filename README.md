@@ -1,2 +1,2 @@
-# Cared4_REST_API
-REST API for Cared4
+# JuiceBoost
+JuiceBoost API
