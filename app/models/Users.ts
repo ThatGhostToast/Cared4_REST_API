@@ -1,26 +1,4 @@
 /*
-                                         ,---------,__
-                                     ,--'             ',
-            ,_--------,____,        /                   \
-          ,/                '.     /            ,' \     \
-         /                    \   /   ,______,'    \,     ',
-       ,/     ,_____.-----,    \  |  /~~-_     _~~~-|      |
-     _/      /             \    ',|  ).-,   -. (     |
-    (       / ,---_     _---\     \  |     ;          |    ;
-    /      ;,  ~-   ,~(      | |    ;_,         |   ;
-    )      /|         :     |      \ |  '__.___`     ;    |
-   /       \_        ._;    :      |\ \  `.___.'     /    |
-  /          |    ,___.__` ,'      ; \ \.        ,'|    /
- /            \,   `.__.' /        )  \,|`------'  |__,/
-(           _ / `-._____.;       /   ,- |   ___,---'   \.
- )        ,' |           /       ) ,/ ,( | / )       __.'|\.
-(      _.'   |          /|\     / ,|/' \\| | |   __.'    |  \.
-(    :'       \         ;\ \   /,' ;    | \) |_.'        |    \.
-\     )`--__,  \        /_; |,'/ \  |   '/' /         __/ \.    \
- `-,__'      \. \.     /'  \/~`;  \  |  |  /  _______'      `-.__\
- /     \,      \. \.  /    {~{*}~} \ |  | /_-'              /   `,_
-|        |       \, \/      `~;~'   \|  | |                |        `,
-
 Model for our users in the database
 */
 
@@ -52,7 +30,7 @@ export class User {
      * Getter $id
      * @return {number }
      */
-	public get $id(): number  {
+	public get Id(): number  {
 		return this.id;
 	}
 
@@ -60,7 +38,7 @@ export class User {
      * Setter $id
      * @param {number } value
      */
-	public set $id(value: number ) {
+	public set Id(value: number ) {
 		this.id = value;
 	}
 
@@ -68,7 +46,7 @@ export class User {
      * Getter $firstName
      * @return {string }
      */
-	public get $firstName(): string  {
+	public get FirstName(): string  {
 		return this.firstName;
 	}
 
@@ -76,7 +54,7 @@ export class User {
      * Setter $firstName
      * @param {string } value
      */
-	public set $firstName(value: string ) {
+	public set FirstName(value: string ) {
 		this.firstName = value;
 	}
 
@@ -84,7 +62,7 @@ export class User {
      * Getter $lastName
      * @return {string }
      */
-	public get $lastName(): string  {
+	public get LastName(): string  {
 		return this.lastName;
 	}
 
@@ -92,7 +70,7 @@ export class User {
      * Setter $lastName
      * @param {string } value
      */
-	public set $lastName(value: string ) {
+	public set LastName(value: string ) {
 		this.lastName = value;
 	}
 
@@ -100,7 +78,7 @@ export class User {
      * Getter $email
      * @return {string }
      */
-	public get $email(): string  {
+	public get Email(): string  {
 		return this.email;
 	}
 
@@ -108,7 +86,7 @@ export class User {
      * Setter $email
      * @param {string } value
      */
-	public set $email(value: string ) {
+	public set Email(value: string ) {
 		this.email = value;
 	}
 
@@ -116,7 +94,7 @@ export class User {
      * Getter $password
      * @return {string }
      */
-	public get $password(): string  {
+	public get Password(): string  {
 		return this.password;
 	}
 
@@ -124,7 +102,7 @@ export class User {
      * Setter $password
      * @param {string } value
      */
-	public set $password(value: string ) {
+	public set Password(value: string ) {
 		this.password = value;
 	}
 
@@ -132,7 +110,7 @@ export class User {
      * Getter $birthday
      * @return {string }
      */
-	public get $birthday(): string  {
+	public get Birthday(): string  {
 		return this.birthday;
 	}
 
@@ -140,7 +118,7 @@ export class User {
      * Setter $birthday
      * @param {string } value
      */
-	public set $birthday(value: string ) {
+	public set Birthday(value: string ) {
 		this.birthday = value;
 	}
 
@@ -148,7 +126,7 @@ export class User {
      * Getter $sex
      * @return {string }
      */
-	public get $sex(): string  {
+	public get Sex(): string  {
 		return this.sex;
 	}
 
@@ -156,7 +134,7 @@ export class User {
      * Setter $sex
      * @param {string } value
      */
-	public set $sex(value: string ) {
+	public set Sex(value: string ) {
 		this.sex = value;
 	}
 
@@ -164,7 +142,7 @@ export class User {
      * Getter $conditions
      * @return {string }
      */
-	public get $conditions(): string  {
+	public get Conditions(): string  {
 		return this.conditions;
 	}
 
@@ -172,7 +150,7 @@ export class User {
      * Setter $conditions
      * @param {string } value
      */
-	public set $conditions(value: string ) {
+	public set Conditions(value: string ) {
 		this.conditions = value;
 	}
 
@@ -180,7 +158,7 @@ export class User {
      * Getter $image
      * @return {number }
      */
-	public get $image(): number  {
+	public get Image(): number  {
 		return this.image;
 	}
 
@@ -188,7 +166,7 @@ export class User {
      * Setter $image
      * @param {number } value
      */
-	public set $image(value: number ) {
+	public set Image(value: number ) {
 		this.image = value;
 	}
 

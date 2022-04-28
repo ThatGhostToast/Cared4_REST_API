@@ -3,23 +3,8 @@ import * as mysql from "mysql";
 import * as util from "util";
 
 /*
-
-   _______________                        |*\_/*|________
-  |  ___________  |     .-.     .-.      ||_/-\_|______  |
-  | |           | |    .****. .****.     | |           | |
-  | |   0   0   | |    .*****.*****.     | |   0   0   | |
-  | |     -     | |     .*********.      | |     -     | |
-  | |   \___/   | |      .*******.       | |   \___/   | |
-  | |___     ___| |       .*****.        | |___________| |
-  |_____|\_/|_____|        .***.         |_______________|
-    _|__|/ \|_|_.............*.............._|________|_
-   / ********** \                          / ********** \
- /  ************  \                      /  ************  \
---------------------                    --------------------
-
 DAO file used for connecting the API to the database
 This DAO handles the sickness table in our database
-
 */
 
 export class SicknessDAO
@@ -159,7 +144,7 @@ export class SicknessDAO
              // Use Promisfy Util to make an async function and update Sickness
             let changes = 0;
             connection.query = util.promisify(connection.query);
-            let result1 = await connection.query("UPDATE `SICKNESSES` SET NAME=?, COMMONNAME=?, SYMPTOMS=?, RARITY=?, SEVERITY=?, CURE=?, TREATMENT=?, NATURALTREATMENT=?, STRONGAGAINST=? WHERE ID=?", [sickness.Name, sickness.CommonName, sickness.Symptoms, sickness.Rarity, sickness.Severity, sickness.Cure, sickness.Treatment, sickness.NaturalTreatment, sickness.StrongAgainst]);
+            let result1 = await connection.query("UPDATE `SICKNESSES` SET NAME=?, COMMONNAME=?, SYMPTOMS=?, RARITY=?, SEVERITY=?, CURE=?, TREATMENT=?, NATURALTREATMENT=?, STRONGAGAINST=? WHERE ID=?", [sickness.Name, sickness.CommonName, sickness.Symptoms, sickness.Rarity, sickness.Severity, sickness.Cure, sickness.Treatment, sickness.NaturalTreatment, sickness.StrongAgainst, sickness.Id]);
             if(result1.changedRows != 0)
                 ++changes;
             console.log(changes);

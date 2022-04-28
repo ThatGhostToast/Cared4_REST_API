@@ -3,23 +3,8 @@ import * as mysql from "mysql";
 import * as util from "util";
 
 /*
-
-   _______________                        |*\_/*|________
-  |  ___________  |     .-.     .-.      ||_/-\_|______  |
-  | |           | |    .****. .****.     | |           | |
-  | |   0   0   | |    .*****.*****.     | |   0   0   | |
-  | |     -     | |     .*********.      | |     -     | |
-  | |   \___/   | |      .*******.       | |   \___/   | |
-  | |___     ___| |       .*****.        | |___________| |
-  |_____|\_/|_____|        .***.         |_______________|
-    _|__|/ \|_|_.............*.............._|________|_
-   / ********** \                          / ********** \
- /  ************  \                      /  ************  \
---------------------                    --------------------
-
 DAO file used for connecting the API to the database
 This DAO handles the users table in our database
-
 */
 
 export class UserDAO
@@ -67,7 +52,7 @@ export class UserDAO
 
             // Use Promisfy Util to make an async function and insert User
             connection.query = util.promisify(connection.query);
-            let result1 = await connection.query('INSERT INTO `USERS` (FIRSTNAME, LASTNAME, EMAIL, PASSWORD, BIRTHDAY, SEX, CONDITIONS, IMAGE) VALUES(?,?,?,?,?,?,?)', [user.FirstName, user.LastName, user.Email, user.Password, user.Birthday, user.Sex, user.Conditions, user.Image]);
+            let result1 = await connection.query('INSERT INTO `USERS` (FIRSTNAME, LASTNAME, EMAIL, PASSWORD, BIRTHDAY, SEX, CONDITIONS, IMAGE) VALUES(?,?,?,?,?,?,?,?)', [user.FirstName, user.LastName, user.Email, user.Password, user.Birthday, user.Sex, user.Conditions, user.Image]);
             if(result1.affectedRows != 1)
                callback(-1);
 
@@ -159,7 +144,7 @@ export class UserDAO
              // Use Promisfy Util to make an async function and update User
             let changes = 0;
             connection.query = util.promisify(connection.query);
-            let result1 = await connection.query("UPDATE `USERS` SET NAME=?, INGREDIENTS=?, BENEFITS=?, HTM=?, IMAGENAME=? WHERE ID=?", [sickness.Name, sickness.CommonName, sickness.Symptoms, sickness.Rarity, sickness.Severity, sickness.Cure, sickness.Treatment, sickness.NaturalTreatment, sickness.StrongAgainst]);
+            let result1 = await connection.query("UPDATE `USERS` SET FIRSTNAME=?, LASTNAME=?, EMAIL=?, PASSWORD=?, BIRTHDAY=?, SEX=?, CONDITIONS=?, IMAGE=? WHERE ID=?", [user.FirstName, user.LastName, user.Email, user.Password, user.Birthday, user.Sex, user.Conditions, user.Image, user.Id]);
             if(result1.changedRows != 0)
                 ++changes;
             console.log(changes);
@@ -169,12 +154,12 @@ export class UserDAO
      }
 
      /**
-     * CRUD method to delete a Sickness.
+     * CRUD method to delete a User.
      * 
-     * @param sicknessId Sickness ID to delete.
+     * @param userId User ID to delete.
      * @param callback Callback function with number of rows deleted.  
      * */
-    public delete(sicknessId:number, callback: any)
+    public delete(userId:number, callback: any)
     {
         // Get pooled database connection and run queries   
         this.pool.getConnection(async function(err:any, connection:any)
@@ -185,10 +170,10 @@ export class UserDAO
             // Throw error if an error
            if (err) throw err;
 
-            // Use Promisfy Util to make an async function and run query to delete Sickness
+            // Use Promisfy Util to make an async function and run query to delete User
             let changes = 0;
             connection.query = util.promisify(connection.query);
-            let result1 = await connection.query('DELETE FROM `SICKNESSES` WHERE ID=?', [sicknessId]);
+            let result1 = await connection.query('DELETE FROM `USERS` WHERE ID=?', [userId]);
             changes = changes + result1.affectedRows;
 
             // Do a callback to return the results

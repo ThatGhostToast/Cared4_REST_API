@@ -136,6 +136,113 @@ app.put('/sickness', function (req, res)
       }
 })
 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//USER REQUESTS
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// GET Route at '/users' that returns all users from the database
+app.get('/users', function (_req, res)
+{
+    // Return User List as JSON, call SicknassDAO.findUsers(), and return JSON array of Users (a string)
+    console.log('In GET /users Route');
+    let dao = new UserDAO(dbHost, dbPort, dbUsername, dbPassword);
+    dao.findUsers(function(user)
+    {
+        res.json(user);
+    });
+})
+
+// GET Route that does a wildcard search for all users searching by id from the database
+app.get('/users/search/user/:id', function (req, res)
+{
+    // Return users List as JSON, call UserDAO.findUserById(), and return JSON array of Users
+    console.log('In GET /users/searach/user Route for ' + req.params.id);
+    let dao = new UserDAO(dbHost, dbPort, dbUsername, dbPassword);
+    dao.findUserById(req.params.id, function(user)
+    {
+        if (user == null)
+        {
+            res.status(200).json({error: "INVALID USER ID"});
+        } else {
+            res.status(200).json(user);
+        }
+    });
+})
+
+// POST Route at '/user' that adds a user to the database
+app.post('/users', function (req, res)
+{
+    console.log(req.body);
+    
+    // If invalid POST Body then return 400 response else add User to the database
+    console.log('In POST /users Route with Post of ' + JSON.stringify(req.body));
+    if(!req.body)
+    {
+        // Check for valid POST Body, note this should validate EVERY field of the POST
+        res.status(400).json({error: "Invalid User Posted"});
+    }
+    else
+    {
+        // New User model
+        let user = new User(req.body.id, req.body.firstName, req.body.lastName, req.body.email, req.body.password, req.body.birthday, req.body.sex, req.body.conditions, req.body.image);
+
+        // Call userDAO.create() to create a User from Posted Data and return an OK response     
+        let dao = new UserDAO(dbHost, dbPort, dbUsername, dbPassword);
+        dao.create(user, function(userId)
+        {
+            if(userId == -1)
+                res.status(200).json({"error" : "Creating User failed"})
+            else
+                res.status(200).json({"success" : "Creating User passed with an ID of " + userId});
+        });     
+      }
+})
+
+// DELETE Route at '/user/:id' that deletes users at a given user ID from the database
+app.delete('/users/:id', function (req, res)
+{
+    // Get the user
+    console.log('In DELETE /users Route with ID of ' + req.params.id);
+    let userId = Number(req.params.id);
+ 
+    // Call UserDAO.delete() to delete a user from the database and return if passed
+    let dao = new UserDAO(dbHost, dbPort, dbUsername, dbPassword);
+    dao.delete(userId, function(changes)
+    {
+        if(changes == 0)
+            res.status(200).json({"error" : "Delete User failed"})
+        else
+            res.status(200).json({"success" : "Delete User passed"})
+    });
+ })
+
+// PUT Route at '/user' that updates a user in the database
+app.put('/users', function (req, res)
+{
+    console.log(req.body);
+    // If invalid PUT Body then return 400 response else update user in the database
+    console.log('In PUT /users Route with Post of ' + JSON.stringify(req.body));
+    if(!req.body)
+    {
+        // Check for valid PUT Body, note this should validate EVERY field of the POST
+        res.status(400).json({error: "Invalid user Posted"});
+    }
+    else
+    {
+        // New User model from Posted Data
+        let user = new User(req.body.id, req.body.firstName, req.body.lastName, req.body.email, req.body.password, req.body.birthday, req.body.sex, req.body.conditions, req.body.image);
+
+        // Call UserDAO.update() to update a user from Posted Data and return an OK response     
+        let dao = new UserDAO(dbHost, dbPort, dbUsername, dbPassword);
+        dao.update(user, function(changes)
+        {
+            if(changes == 0)
+                res.status(200).json({error : "Updating User passed but nothing was changed"})
+            else
+                res.status(200).json({success : "Updating User passed and data was changed"});
+        });     
+      }
+})
+
 // Route code ends
 // Start the Server
 app.listen(port, () => 
