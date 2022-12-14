@@ -97,7 +97,13 @@ export class UserDAO
          });
      }
 
-     public findUserById(id:number, callback: any)
+    /**
+     * Method to find a user by their ID
+     * 
+     * @param id Id of the user being searched
+     * @param callback Callback function with an Array of type Users.
+     */
+    public findUserById(id:number, callback: any)
     {
          // User that's going to be returned
          let user:User;
@@ -114,6 +120,39 @@ export class UserDAO
             // Use Promisfy Util to make an async function and run query to get all Users for search
             connection.query = util.promisify(connection.query);
             let result1 = await connection.query("SELECT * FROM `USERS` WHERE ID = ?", id);
+            for(let x=0;x < result1.length;++x)
+            {
+                // Get user from the database to return
+                user = new User(result1[x].ID, result1[x].FIRSTNAME, result1[x].LASTNAME, result1[x].EMAIL, result1[x].PASSWORD, result1[x].BIRTHDAY, result1[x].SEX, result1[x].CONDITIONS, result1[x].IMAGE);
+            }
+            // Do a callback to return the results
+            callback(user);
+         });
+    }
+
+    /**
+     * Method to find a user by their Email
+     * 
+     * @param id Id of the user being searched
+     * @param callback Callback function with an Array of type Users.
+     */
+    public findUserByEmail(email:string, callback: any)
+    {
+        // User that's going to be returned
+        let user:User;
+
+        // Get pooled database connection and run queries   
+        this.pool.getConnection(async function(err:any, connection:any)
+        {
+            // Release connection in the pool
+            connection.release();
+
+            // Throw error if an error
+            if (err) throw err;
+
+            // Use Promisfy Util to make an async function and run query to get all Users for search
+            connection.query = util.promisify(connection.query);
+            let result1 = await connection.query("SELECT * FROM `USERS` WHERE EMAIL = ?", email);
             for(let x=0;x < result1.length;++x)
             {
                 // Get user from the database to return

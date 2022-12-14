@@ -168,6 +168,23 @@ app.get('/users/search/user/:id', function (req, res)
     });
 })
 
+// GET Route that does a wildcard search for all users searching by email from the database
+app.get('/users/search/user/email/:email', function (req, res)
+{
+    // Return users List as JSON, call UserDAO.findUserById(), and return JSON array of Users
+    console.log('In GET /users/searach/user/email Route for ' + req.params.email);
+    let dao = new UserDAO(dbHost, dbPort, dbUsername, dbPassword);
+    dao.findUserByEmail(req.params.email, function(user)
+    {
+        if (user == null)
+        {
+            res.status(200).json({error: "USER NOT FOUND"});
+        } else {
+            res.status(200).json(user);
+        }
+    });
+})
+
 // POST Route at '/user' that adds a user to the database
 app.post('/users', function (req, res)
 {
