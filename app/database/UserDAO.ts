@@ -19,6 +19,7 @@ export class UserDAO
     /**
      * Non-default constructor.
      * 
+     * @constructor
      * @param host Database Hostname
      * @param username Database Username
      * @param password Database Password
@@ -52,7 +53,9 @@ export class UserDAO
 
             // Use Promisfy Util to make an async function and insert User
             connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
             let result1 = await connection.query('INSERT INTO `USERS` (FIRSTNAME, LASTNAME, EMAIL, PASSWORD, BIRTHDAY, SEX, CONDITIONS, IMAGE) VALUES(?,?,?,?,?,?,?,?)', [user.FirstName, user.LastName, user.Email, user.Password, user.Birthday, user.Sex, user.Conditions, user.Image]);
+            // If no rows were affected then return -1 to indicate an error
             if(result1.affectedRows != 1)
                callback(-1);
 
@@ -85,7 +88,9 @@ export class UserDAO
 
             // Use Promisfy Util to make an async function and run query to get all users
             connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
             let result1 = await connection.query('SELECT * FROM `USERS`');
+            // Looping over the results and adding each user to the list
             for(let x=0;x < result1.length;++x)
             {
                 // Add user and its data to the list
@@ -105,8 +110,8 @@ export class UserDAO
      */
     public findUserById(id:number, callback: any)
     {
-         // User that's going to be returned
-         let user:User;
+        // User that's going to be returned
+        let user:User;
 
         // Get pooled database connection and run queries   
         this.pool.getConnection(async function(err:any, connection:any)
@@ -119,7 +124,9 @@ export class UserDAO
 
             // Use Promisfy Util to make an async function and run query to get all Users for search
             connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
             let result1 = await connection.query("SELECT * FROM `USERS` WHERE ID = ?", id);
+            // Assigning the result to the user model using a loop
             for(let x=0;x < result1.length;++x)
             {
                 // Get user from the database to return
@@ -127,7 +134,7 @@ export class UserDAO
             }
             // Do a callback to return the results
             callback(user);
-         });
+        });
     }
 
     /**
@@ -152,7 +159,9 @@ export class UserDAO
 
             // Use Promisfy Util to make an async function and run query to get all Users for search
             connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
             let result1 = await connection.query("SELECT * FROM `USERS` WHERE EMAIL = ?", email);
+            // Adding the result to the user model 
             for(let x=0;x < result1.length;++x)
             {
                 // Get user from the database to return
@@ -160,7 +169,7 @@ export class UserDAO
             }
             // Do a callback to return the results
             callback(user);
-         });
+        });
     }
 
      /**
@@ -182,10 +191,14 @@ export class UserDAO
  
              // Use Promisfy Util to make an async function and update User
             let changes = 0;
+            // Use Promisfy Util to make an async function and insert User
             connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
             let result1 = await connection.query("UPDATE `USERS` SET FIRSTNAME=?, LASTNAME=?, EMAIL=?, PASSWORD=?, BIRTHDAY=?, SEX=?, CONDITIONS=?, IMAGE=? WHERE ID=?", [user.FirstName, user.LastName, user.Email, user.Password, user.Birthday, user.Sex, user.Conditions, user.Image, user.Id]);
+            // If any row was affected in the database, update the changes variable to reflect that
             if(result1.changedRows != 0)
                 ++changes;
+            // Log Changes
             console.log(changes);
             // Do a callback to return the results
             callback(changes);
@@ -211,8 +224,11 @@ export class UserDAO
 
             // Use Promisfy Util to make an async function and run query to delete User
             let changes = 0;
+            // Use Promisfy Util to make an async function and insert User
             connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
             let result1 = await connection.query('DELETE FROM `USERS` WHERE ID=?', [userId]);
+            // Set the affected rows to the changes variable
             changes = changes + result1.affectedRows;
 
             // Do a callback to return the results
@@ -227,6 +243,7 @@ export class UserDAO
      */
     private initDbConnection():any
     {
+        //Return a database connection
         return mysql.createPool({host: this.host, port: this.port, user: this.username, password: this.password, database: this.schema, connectionLimit: 10});
     }
 }

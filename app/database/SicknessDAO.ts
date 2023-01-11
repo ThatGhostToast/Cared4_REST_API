@@ -18,7 +18,7 @@ export class SicknessDAO
     
     /**
      * Non-default constructor.
-     * 
+     * @constructor
      * @param host Database Hostname
      * @param username Database Username
      * @param password Database Password
@@ -52,7 +52,9 @@ export class SicknessDAO
 
             // Use Promisfy Util to make an async function and insert Sickness
             connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
             let result1 = await connection.query('INSERT INTO SICKNESSES (NAME, COMMONNAME, SYMPTOMS, RARITY, SEVERITY, CURE, TREATMENT, NATURALTREATMENT, STRONGAGAINST) VALUES(?,?,?,?,?,?,?,?,?)', [sickness.Name, sickness.CommonName, sickness.Symptoms, sickness.Rarity, sickness.Severity, sickness.Cure, sickness.Treatment, sickness.NaturalTreatment, sickness.StrongAgainst]);
+            // If there are no rows affected then return -1 to signal something went wrong
             if(result1.affectedRows != 1)
                callback(-1);
 
@@ -85,7 +87,9 @@ export class SicknessDAO
 
             // Use Promisfy Util to make an async function and run query to get all Sicknesses
             connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
             let result1 = await connection.query('SELECT * FROM `SICKNESSES`');
+            // Looping over the results and pushing each sickness that has been retrieved from the database to the list
             for(let x=0;x < result1.length;++x)
             {
                 // Add sickness and its data to the list
@@ -94,13 +98,19 @@ export class SicknessDAO
 
             // Do a callback to return the results
             callback(sickness);
-         });
-     }
+        });
+    }
 
-     public findSicknessById(id:number, callback: any)
+    /**
+     * Method to find a sickness in the database by it's ID
+     * 
+     * @param id ID of the sickness being retrieved
+     * @param callback Callback function with a list of the sicknesses retrieved
+     */
+    public findSicknessById(id:number, callback: any)
     {
-         // Sickness that's going to be returned
-         let sickness:Sicknesses;
+        // Sickness that's going to be returned
+        let sickness:Sicknesses;
 
         // Get pooled database connection and run queries   
         this.pool.getConnection(async function(err:any, connection:any)
@@ -113,7 +123,9 @@ export class SicknessDAO
 
             // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
             connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
             let result1 = await connection.query("SELECT * FROM `SICKNESSES` WHERE ID = ?", id);
+            // Looping over the results and pushing each sickness that has been retrieved from the database to the list (should only be one)
             for(let x=0;x < result1.length;++x)
             {
                 // Get sickness information
@@ -121,7 +133,7 @@ export class SicknessDAO
             }
             // Do a callback to return the results
             callback(sickness);
-         });
+        });
     }
 
      /**
@@ -132,26 +144,30 @@ export class SicknessDAO
      */
     public update(sickness:Sicknesses, callback: any)
     {
-         // Get pooled database connection and run queries   
-         this.pool.getConnection(async function(err:any, connection:any)
-         {
-             // Release connection in the pool
-             connection.release();
+        // Get pooled database connection and run queries   
+        this.pool.getConnection(async function(err:any, connection:any)
+        {
+            // Release connection in the pool
+            connection.release();
  
-             // Throw error if an error
+            // Throw error if an error
             if (err) throw err;
  
              // Use Promisfy Util to make an async function and update Sickness
             let changes = 0;
+            // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
             connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
             let result1 = await connection.query("UPDATE `SICKNESSES` SET NAME=?, COMMONNAME=?, SYMPTOMS=?, RARITY=?, SEVERITY=?, CURE=?, TREATMENT=?, NATURALTREATMENT=?, STRONGAGAINST=? WHERE ID=?", [sickness.Name, sickness.CommonName, sickness.Symptoms, sickness.Rarity, sickness.Severity, sickness.Cure, sickness.Treatment, sickness.NaturalTreatment, sickness.StrongAgainst, sickness.Id]);
+            // If the result indicates that a row was updated, then the number of changes increases
             if(result1.changedRows != 0)
                 ++changes;
+            //Log the changes
             console.log(changes);
             // Do a callback to return the results
             callback(changes);
-         });
-     }
+        });
+    }
 
      /**
      * CRUD method to delete a Sickness.
@@ -172,8 +188,11 @@ export class SicknessDAO
 
             // Use Promisfy Util to make an async function and run query to delete Sickness
             let changes = 0;
+            // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
             connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
             let result1 = await connection.query('DELETE FROM `SICKNESSES` WHERE ID=?', [sicknessId]);
+            // Changes made to the database being saved to a variable
             changes = changes + result1.affectedRows;
 
             // Do a callback to return the results
@@ -188,6 +207,7 @@ export class SicknessDAO
      */
     private initDbConnection():any
     {
+        //Return a database connection
         return mysql.createPool({host: this.host, port: this.port, user: this.username, password: this.password, database: this.schema, connectionLimit: 10});
     }
 }
