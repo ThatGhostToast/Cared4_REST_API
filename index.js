@@ -65,7 +65,7 @@ app.get('/sicknesses/search/sickness/:id', function (req, res)
 {
     // Return sicknesses List as JSON, call SicknessDAO.findSicknessById(), and return JSON array of sicknesses
     // Log the location and the request parameters
-    console.log('In GET /sicknesses/searach/sickness Route for ' + req.params.id);
+    console.log('In GET /sicknesses/search/sickness/id Route for ' + req.params.id);
     // Create a new instance of the DAO
     let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
     // Using the findSicknessById function and the Id in the parameters to find a sickness
@@ -74,6 +74,28 @@ app.get('/sicknesses/search/sickness/:id', function (req, res)
         if (sickness == null)
         {
             res.status(200).json({error: "INVALID SICKNESS ID"}); // If the DAO does not return a sickness then the ID is invalid
+        } else {
+            res.status(200).json(sickness); // If the DAO returns a sickness then add it to the response
+        }
+    });
+})
+
+/** 
+ * GET Route that does a wildcard search for all sicknesses searching by symptoms from the database
+ */
+app.get('/sicknesses/search/symptoms/:symptoms', function (req, res)
+{
+    // Return sicknesses List as JSON, call SicknessDAO.findSicknessBySymptoms(), and return JSON array of sicknesses
+    // Log the location and the request parameters
+    console.log('In GET /sicknesses/search/sickness/symptoms Route for ' + req.params.symptoms);
+    // Create a new instance of the DAO
+    let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
+    // Using the findSicknessBySymptoms function and the Id in the parameters to find a sickness
+    dao.findSicknessBySymptoms(req.params.symptoms, function(sickness)
+    {
+        if (sickness == null)
+        {
+            res.status(200).json({error: "NO ILLNESS FOUND"}); // If the DAO does not return a sickness then it was not found in the database
         } else {
             res.status(200).json(sickness); // If the DAO returns a sickness then add it to the response
         }
