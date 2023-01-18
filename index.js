@@ -249,6 +249,34 @@ app.get('/users/search/user/:id', function (req, res)
  * @param req User request
  * @param res Function response
  */
+app.get('/users/login/:email/:password', function (req, res)
+{
+    // Return users List as JSON, call UserDAO.findUserById(), and return JSON array of Users
+    // Log the location and the request parameters 
+    console.log('In GET /users/login Route for ' + req.params.email);
+    // Create a new instance of the DAO
+    let dao = new UserDAO(dbHost, dbPort, dbUsername, dbPassword);
+    // Using the findUserByEmail function and using the Email sent in as a parameter to find a user in the database
+    dao.findUserByEmail(req.params.email, function(user){
+        if (user == null)
+        {
+            res.status(200).json({error: "USER NOT FOUND"}); //If the user was not returned by the DAO, then the user was not found
+        } else {
+            if (user.password == req.params.password) //Testing if the password matches the password of the user found in the database
+            {
+                res.status(200).json(user); //If the user was returned by the DAO and the password was correct, put the user into the response
+            } else {
+                res.status(200).json({error: "INCORRECT PASSWORD"}); // If this error is thrown then the user was found but the password was incorrect
+            }
+        }
+    });
+})
+
+/** 
+ * GET Route that does a wildcard search for all users searching by email from the database
+ * @param req User request
+ * @param res Function response
+ */
 app.get('/users/search/user/email/:email', function (req, res)
 {
     // Return users List as JSON, call UserDAO.findUserById(), and return JSON array of Users

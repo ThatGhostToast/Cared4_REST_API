@@ -140,7 +140,7 @@ export class UserDAO
     /**
      * Method to find a user by their Email
      * 
-     * @param id Id of the user being searched
+     * @param email email of the user being searched
      * @param callback Callback function with an Array of type Users.
      */
     public findUserByEmail(email:string, callback: any)
@@ -171,7 +171,6 @@ export class UserDAO
             callback(user);
         });
     }
-
      /**
      * CRUD method to update a User.
      * 
