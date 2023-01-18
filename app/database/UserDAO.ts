@@ -171,6 +171,7 @@ export class UserDAO
             callback(user);
         });
     }
+    
      /**
      * CRUD method to update a User.
      * 
