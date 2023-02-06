@@ -14,6 +14,9 @@ const port = 3000;
 app.use(bodyParser.json());
 app.use(cors());
 
+//Adding CryptoJS for encrypting the passwords
+const CryptoJS = require('crypto-js');
+
 // Database configuration
 const dbHost = "localhost"
 const dbPort = 8889;
@@ -287,8 +290,11 @@ app.post('/users', function (req, res)
     }
     else
     {
+        //Hashing the user's password before placing it into the database
+        const hash = CryptoJS.SHA256(req.body.password);
+
         // New User model
-        let user = new User(req.body.id, req.body.firstName, req.body.lastName, req.body.email, req.body.password, req.body.birthday, req.body.sex, req.body.conditions, req.body.image);
+        let user = new User(req.body.id, req.body.firstName, req.body.lastName, req.body.email, hash.toString(), req.body.birthday, req.body.sex, req.body.conditions, req.body.image);
 
         // Call userDAO.create() to create a User from Posted Data and return an OK response     
         let dao = new UserDAO(dbHost, dbPort, dbUsername, dbPassword);
@@ -313,19 +319,22 @@ app.post('/users/login', function (req, res)
     // Log the location and the request parameters 
     console.log('In POST /users/login Route');
 
+    //Hashing the user's password to test it against the one saved in the database
+    const hash = CryptoJS.SHA256(req.body.password);
+
     // Create a new instance of the DAO
     let dao = new UserDAO(dbHost, dbPort, dbUsername, dbPassword);
     // Using the findUserByEmail function and using the Email sent in as a parameter to find a user in the database
     dao.findUserByEmail(req.body.email, function(user){
         if (user == null)
         {
-            res.status(200).json({error: "USER NOT FOUND"}); //If the user was not returned by the DAO, then the user was not found
+            res.status(202).json({error: "USER NOT FOUND"}); //If the user was not returned by the DAO, then the user was not found
         } else {
-            if (user.password == req.body.password) //Testing if the password matches the password of the user found in the database
+            if (user.password == hash) //Testing if the password matches the password of the user found in the database
             {
                 res.status(200).json(user); //If the user was returned by the DAO and the password was correct, put the user into the response
             } else {
-                res.status(200).json({error: "INCORRECT PASSWORD"}); // If this error is thrown then the user was found but the password was incorrect
+                res.status(201).json({error: "INCORRECT PASSWORD"}); // If this error is thrown then the user was found but the password was incorrect
             }
         }
     });
