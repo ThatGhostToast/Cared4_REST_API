@@ -171,6 +171,41 @@ export class SicknessDAO
         });
     }
 
+        /**
+     * Method to find a sickness in the database by it's symptoms
+     * 
+     * @param symptoms symptoms of the sickness being retrieved
+     * @param callback Callback function with a list of the sicknesses retrieved
+     */
+        public findSicknessByName(name:string, callback: any)
+        {
+            // Sickness that's going to be returned
+            let sicknesses:Sicknesses[] = [];
+    
+            // Get pooled database connection and run queries   
+            this.pool.getConnection(async function(err:any, connection:any)
+            {
+                // Release connection in the pool
+                connection.release();
+    
+                // Throw error if an error
+                if (err) throw err;
+    
+                // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
+                connection.query = util.promisify(connection.query);
+                // Database query assigned to a result variable
+                let result1 = await connection.query("SELECT * FROM `SICKNESSES` WHERE NAME LIKE '%"+ name + "%'");
+                // Looping over the results and pushing each sickness that has been retrieved from the database to the list (should only be one)
+                for(let x=0;x < result1.length;++x)
+                {
+                    // Get sickness information
+                    sicknesses.push(new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].RARITY, result1[x].SEVERITY, result1[x].CURE, result1[x].TREATMENT, result1[x].NATURALTREATMENT, result1[x].STRONGAGAINST));
+                }
+                // Do a callback to return the results
+                callback(sicknesses);
+            });
+        }
+
      /**
      * CRUD method to update a Sickness.
      * 
