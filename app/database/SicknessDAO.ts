@@ -171,10 +171,10 @@ export class SicknessDAO
         });
     }
 
-        /**
-     * Method to find a sickness in the database by it's symptoms
+    /**
+     * Method to find a sickness in the database by it's name
      * 
-     * @param symptoms symptoms of the sickness being retrieved
+     * @param name name of the sickness being retrieved
      * @param callback Callback function with a list of the sicknesses retrieved
      */
         public findSicknessByName(name:string, callback: any)

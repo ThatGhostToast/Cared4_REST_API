@@ -125,16 +125,16 @@ app.get('/sicknesses/search/symptoms/:symptoms', function (req, res)
 })
 
 /** 
- * GET Route that does a wildcard search for all sicknesses searching by symptoms from the database
+ * GET Route that does a wildcard search for all sicknesses searching by name from the database
  */
 app.get('/sicknesses/search/name/:name', function (req, res)
 {
-    // Return sicknesses List as JSON, call SicknessDAO.findSicknessBySymptoms(), and return JSON array of sicknesses
+    // Return sicknesses List as JSON, call SicknessDAO.findSicknessByName(), and return JSON array of sicknesses
     // Log the location and the request parameters
     console.log('In GET /sicknesses/search/sickness/symptoms Route for ' + req.params.name);
     // Create a new instance of the DAO
     let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
-    // Using the findSicknessBySymptoms function and the Id in the parameters to find a sickness
+    // Using the findSicknessByName function and the name in the parameters to find a sickness
     dao.findSicknessByName(req.params.name, function (sickness) {
       if (sickness == null) {
         res.status(201).json({ error: "NO ILLNESS FOUND" }); // If the DAO does not return a sickness then it was not found in the database
