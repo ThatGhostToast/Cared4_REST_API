@@ -49,6 +49,14 @@ export class Sicknesses
      */
     private symptoms: string = "";
     /**
+     * Description of the illness
+     *
+     * @private
+     * @type {string}
+     * @memberof Sicknesses
+     */
+    private description: string = "";
+    /**
      * Rarity of the sickness
      * @private
      * @type {number}
@@ -63,13 +71,6 @@ export class Sicknesses
      */
     private severity: number = -1;
     /**
-     * The cure for the sickness
-     * @private
-     * @type {string}
-     * @memberof Sicknesses
-     */
-    private cure: string = "";
-    /**
      * How to treat the sickness if there is no cure
      * @private
      * @type {string}
@@ -77,19 +78,28 @@ export class Sicknesses
      */
     private treatment: string = "";
     /**
-     * Natural treatments for the sickness
-     * @private
-     * @type {string}
-     * @memberof Sicknesses
-     */
-    private naturalTreatment: string = "";
-    /**
      * What pre existing conditions the sickness is strong against
      * @private
      * @type {string}
      * @memberof Sicknesses
      */
     private strongAgainst: string = "";
+    /**
+     * The requirements of the illness such as gender or previous conditions
+     *
+     * @private
+     * @type {string}
+     * @memberof Sicknesses
+     */
+    private requirements: string = "";
+    /**
+     * The common targets such as age
+     *
+     * @private
+     * @type {string}
+     * @memberof Sicknesses
+     */
+    private commonTargets: string = "";
 
     /**
      * Sickness Constructor
@@ -98,25 +108,27 @@ export class Sicknesses
      * @param name Scientific name of the sickness
      * @param commonName Common name of the sickness
      * @param symptoms Symptoms of the sickness
+     * @param description Description of the sickness
      * @param rarity Rarity of the sickness
      * @param severity How severe the sickness is
-     * @param cure The cure for the sickness
      * @param treatment How to treat the sickness if there is no cure
-     * @param naturalTreatment Natural treatments for the sickness
      * @param strongAgainst What pre existing conditions the sickness is strong against
+     * @param requirements The things required for a user to have the sickness
+     * @param commonTargets The people the sickness commonly affects
      */
-    constructor(id:number, name:string, commonName:string, symptoms:string, rarity:number, severity:number, cure:string, treatment:string, naturalTreatment:string, strongAgainst:string)
+    constructor(id:number, name:string, commonName:string, symptoms:string, description:string, rarity:number, severity:number, treatment:string, strongAgainst:string, requirements:string, commonTargets:string)
     {
         this.id = id;
         this.name = name;
         this.commonName = commonName;
         this.symptoms = symptoms;
+        this.description = description;
         this.rarity = rarity;
         this.severity = severity;
-        this.cure = cure;
         this.treatment = treatment;
-        this.naturalTreatment = naturalTreatment;
         this.strongAgainst = strongAgainst;
+        this.requirements = requirements;
+        this.commonTargets = commonTargets;
     }
 
     //=-=-=-=-=-=-=-=-=-=-=
@@ -203,6 +215,26 @@ export class Sicknesses
     }
 
     /**
+     * Method to get the description of a sickness
+     *
+     * @type {string}
+     * @memberof Sicknesses
+     */
+    get Description():string
+    {
+        return this.description;
+    }
+    /**
+     * Method to set the description of a sickness
+     *
+     * @memberof Sicknesses
+     */
+    set Description(description:string)
+    {
+        this.description = description;
+    }
+
+    /**
      * Method to get the rarity of a sickness
      *
      * @type {number}
@@ -243,26 +275,6 @@ export class Sicknesses
     }
 
     /**
-     * Method to get the cure of a sickness
-     *
-     * @type {string}
-     * @memberof Sicknesses
-     */
-    get Cure():string
-    {
-        return this.cure;
-    }
-    /**
-     * Method to set the cure of a sickness
-     *
-     * @memberof Sicknesses
-     */
-    set Curt(cure:string)
-    {
-        this.cure = cure;
-    }
-
-    /**
      * Method to get the treatment for a sickness
      *
      * @type {string}
@@ -283,26 +295,6 @@ export class Sicknesses
     }
 
     /**
-     * Method to get the natural treatment for a sickness
-     *
-     * @type {string}
-     * @memberof Sicknesses
-     */
-    get NaturalTreatment():string
-    {
-        return this.naturalTreatment;
-    }
-    /**
-     * Method to set the natural treatment for a sickness
-     *
-     * @memberof Sicknesses
-     */
-    set NaturalTreatment(naturalTreatment:string)
-    {
-        this.naturalTreatment = naturalTreatment;
-    }
-
-    /**
      * Method to get the strong against for a sickness
      *
      * @type {string}
@@ -320,5 +312,45 @@ export class Sicknesses
     set StrongAgainst(strongAgainst: string)
     {
         this.strongAgainst = strongAgainst;
+    }
+
+    /**
+     * Method to get the sickness requirements
+     *
+     * @type {string}
+     * @memberof Sicknesses
+     */
+    get Requirements():string
+    {
+        return this.requirements;
+    }
+    /**
+     * Method to set the sickness requirements
+     *
+     * @memberof Sicknesses
+     */
+    set Requirements(requirements:string)
+    {
+        this.requirements = requirements;
+    }
+
+    /**
+     * Method to get the sickness common targets
+     *
+     * @type {string}
+     * @memberof Sicknesses
+     */
+    get CommonTargets():string
+    {
+        return this.commonTargets;
+    }
+    /**
+     * Method to set the sickness common targets
+     *
+     * @memberof Sicknesses
+     */
+    set CommonTargets(commonTargets:string)
+    {
+        this.commonTargets = commonTargets;
     }
 }

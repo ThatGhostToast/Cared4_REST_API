@@ -50,23 +50,16 @@ app.get('/', function (_req, res)
  */
 app.get('/sicknesses', function (req, res)
 {
-    // Checking to see if the access is authorized.
-    if (req.body.key === API_KEY)
+    // Return sickness List as JSON, call SicknassDAO.findSickness(), and return JSON array of Sickness (a string)
+    // Log the location
+    console.log('In GET /sickness Route');
+    // Create a new instance of the DAO
+    let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
+    // Using the findSickness function return a JSON of all sicknesses
+    dao.findSickness(function(sickness)
     {
-        // Return sickness List as JSON, call SicknassDAO.findSickness(), and return JSON array of Sickness (a string)
-        // Log the location
-        console.log('In GET /sickness Route');
-        // Create a new instance of the DAO
-        let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
-        // Using the findSickness function return a JSON of all sicknesses
-        dao.findSickness(function(sickness)
-        {
-            res.json(sickness);
-        });
-    } else {
-        //If the access is not authorized return error.
-        res.status(403).json({error: "UNAUTHORIZED ACCESS"});
-    }
+        res.json(sickness);
+    });
 })
 
 /** 
@@ -76,28 +69,22 @@ app.get('/sicknesses', function (req, res)
  */
 app.get('/sicknesses/search/sickness/:id', function (req, res)
 {
-    // Checking to see if the access is authorized.
-    if (req.body.key === API_KEY)
+
+    // Return sicknesses List as JSON, call SicknessDAO.findSicknessById(), and return JSON array of sicknesses
+    // Log the location and the request parameters
+    console.log('In GET /sicknesses/search/sickness/id Route for ' + req.params.id);
+    // Create a new instance of the DAO
+    let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
+    // Using the findSicknessById function and the Id in the parameters to find a sickness
+    dao.findSicknessById(req.params.id, function(sickness)
     {
-        // Return sicknesses List as JSON, call SicknessDAO.findSicknessById(), and return JSON array of sicknesses
-        // Log the location and the request parameters
-        console.log('In GET /sicknesses/search/sickness/id Route for ' + req.params.id);
-        // Create a new instance of the DAO
-        let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
-        // Using the findSicknessById function and the Id in the parameters to find a sickness
-        dao.findSicknessById(req.params.id, function(sickness)
+        if (sickness == null)
         {
-            if (sickness == null)
-            {
-                res.status(200).json({error: "INVALID SICKNESS ID"}); // If the DAO does not return a sickness then the ID is invalid
-            } else {
-                res.status(200).json(sickness); // If the DAO returns a sickness then add it to the response
-            }
-        });
-    } else {
-        //If the access is not authorized return error.
-        res.status(403).json({error: "UNAUTHORIZED ACCESS"});
-    }
+            res.status(200).json({error: "INVALID SICKNESS ID"}); // If the DAO does not return a sickness then the ID is invalid
+        } else {
+            res.status(200).json(sickness); // If the DAO returns a sickness then add it to the response
+        }
+    });
 })
 
 /** 
@@ -169,7 +156,7 @@ app.post('/sickness', function (req, res)
         else
         {
             // New Sickness model
-            let sickness = new Sicknesses(req.body.id, req.body.name, req.body.commonName, req.body.symptoms, req.body.rarity, req.body.severity, req.body.cure, req.body.treatment, req.body.naturalTreatment, req.body.strongAgainst);
+            let sickness = new Sicknesses(req.body.id, req.body.name, req.body.commonName, req.body.symptoms, req.body.description, req.body.rarity, req.body.severity, req.body.treatment, req.body.strongAgainst, req.body.requirements, req.body.commontargets);
 
             // Call sicknessDAO.create() to create a sickness from Posted Data and return an OK response     
             let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
@@ -242,7 +229,7 @@ app.put('/sickness', function (req, res)
         else
         {
             // New sickness model from Posted Data
-            let sickness = new Sicknesses(req.body.id, req.body.name, req.body.commonName, req.body.symptoms, req.body.rarity, req.body.severity, req.body.cure, req.body.treatment, req.body.naturalTreatment, req.body.strongAgainst);
+            let sickness = new Sicknesses(req.body.id, req.body.name, req.body.commonName, req.body.symptoms, req.body.description, req.body.rarity, req.body.severity, req.body.treatment, req.body.strongAgainst, req.body.requirements, req.body.commontargets);
 
             // Call SicknessDAO.update() to update a sickness from Posted Data and return an OK response     
             let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
