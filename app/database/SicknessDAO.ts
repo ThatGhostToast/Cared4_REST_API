@@ -177,34 +177,69 @@ export class SicknessDAO
      * @param name name of the sickness being retrieved
      * @param callback Callback function with a list of the sicknesses retrieved
      */
-        public findSicknessByName(name:string, callback: any)
+    public findSicknessByName(name:string, callback: any)
+    {
+        // Sickness that's going to be returned
+        let sicknesses:Sicknesses[] = [];
+
+        // Get pooled database connection and run queries   
+        this.pool.getConnection(async function(err:any, connection:any)
         {
-            // Sickness that's going to be returned
-            let sicknesses:Sicknesses[] = [];
-    
-            // Get pooled database connection and run queries   
-            this.pool.getConnection(async function(err:any, connection:any)
+            // Release connection in the pool
+            connection.release();
+
+            // Throw error if an error
+            if (err) throw err;
+
+            // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
+            connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
+            let result1 = await connection.query("SELECT * FROM `SICKNESSES` WHERE NAME LIKE '%"+ name + "%'");
+            // Looping over the results and pushing each sickness that has been retrieved from the database to the list (should only be one)
+            for(let x=0;x < result1.length;++x)
             {
-                // Release connection in the pool
-                connection.release();
-    
-                // Throw error if an error
-                if (err) throw err;
-    
-                // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
-                connection.query = util.promisify(connection.query);
-                // Database query assigned to a result variable
-                let result1 = await connection.query("SELECT * FROM `SICKNESSES` WHERE NAME LIKE '%"+ name + "%'");
-                // Looping over the results and pushing each sickness that has been retrieved from the database to the list (should only be one)
-                for(let x=0;x < result1.length;++x)
-                {
-                    // Get sickness information
-                    sicknesses.push(new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS));
-                }
-                // Do a callback to return the results
-                callback(sicknesses);
-            });
-        }
+                // Get sickness information
+                sicknesses.push(new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS));
+            }
+            // Do a callback to return the results
+            callback(sicknesses);
+        });
+    }
+
+    /**
+     * Method used to return 3 random illnesses for the home page of Cared4.
+     * 
+     * @param callback Callback function with an Array of type Sicknesses.
+     */
+    public findSicknessByRandom(callback: any)
+    {
+        // List of sicknesses to return
+        let sickness:Sicknesses[] = [];
+             
+        // Get a pooled connection to the database, run the query to get all the Sicknesses, and return the List of Sicknesses
+        this.pool.getConnection(async function(err:any, connection:any)
+        {
+            // Release connection in the pool
+            connection.release();
+     
+            // Throw error if an error
+            if (err) throw err;
+     
+            // Use Promisfy Util to make an async function and run query to get all Sicknesses
+            connection.query = util.promisify(connection.query);
+            // Database query assigned to a result variable
+            let result1 = await connection.query('SELECT * FROM `SICKNESSES` ORDER BY RAND() LIMIT 3');
+            // Looping over the results and pushing each sickness that has been retrieved from the database to the list
+            for(let x=0;x < result1.length;++x)
+            {
+                // Add sickness and its data to the list
+                sickness.push(new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS));
+            }
+     
+            // Do a callback to return the results
+            callback(sickness);
+        });
+    }
 
      /**
      * CRUD method to update a Sickness.

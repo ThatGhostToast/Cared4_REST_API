@@ -132,6 +132,26 @@ app.get('/sicknesses/search/name/:name', function (req, res)
 })
 
 /** 
+ * GET Route that does a wildcard search for random sicknesses in the database
+ */
+app.get('/sicknesses/random', function (req, res)
+{
+    // Return sicknesses List as JSON, call SicknessDAO.findSicknessByRandom(), and return JSON array of sicknesses
+    // Log the location and the request parameters
+    console.log('In GET /sicknesses/random Route for ' + req.params.name);
+    // Create a new instance of the DAO
+    let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
+    // Using the findSicknessByName function and the name in the parameters to find a sickness
+    dao.findSicknessByRandom(function (sickness) {
+      if (sickness == null) {
+        res.status(201).json({ error: "SOMETHING WENT WRONG" }); // If the DAO does not return a sickness then it was not found in the database
+      } else {
+        res.status(200).json(sickness); // If the DAO returns a sickness then add it to the response
+      }
+    });
+})
+
+/** 
  * POST Route at '/sickness' that adds a sickness to the database
  * @param req User request
  * @param res Function response
