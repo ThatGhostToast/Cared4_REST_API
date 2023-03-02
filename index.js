@@ -138,7 +138,7 @@ app.get('/sicknesses/random', function (req, res)
 {
     // Return sicknesses List as JSON, call SicknessDAO.findSicknessByRandom(), and return JSON array of sicknesses
     // Log the location and the request parameters
-    console.log('In GET /sicknesses/random Route for ' + req.params.name);
+    console.log('In GET /sicknesses/random Route');
     // Create a new instance of the DAO
     let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
     // Using the findSicknessByName function and the name in the parameters to find a sickness
