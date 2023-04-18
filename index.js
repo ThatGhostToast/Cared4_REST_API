@@ -377,6 +377,7 @@ app.get('/users', function (req, res)
         // Using the findUsers function, return all of the users
         dao.findUsers(function(user)
         {
+            //Sending a log to the logging handler
             logger.log("EXITING: GET /users Route");
             res.json(user); // Responding with a JSON of all users
         });
@@ -396,12 +397,14 @@ app.get('/users', function (req, res)
  */
 app.post('/users/search/user/:id', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: POST /users/search/user/:id Route for " + req.params.id);
     // Checking to see if the access is authorized.
     if (req.body.key === API_KEY)
     {
         // Return users List as JSON, call UserDAO.findUserById(), and return JSON array of Users
         // Log the location and the request parameters
-        console.log('In GET /users/searach/user Route for ' + req.params.id);
+        console.log('In POST /users/searach/user Route for ' + req.params.id);
         // Create a new instance of the DAO
         let dao = new UserDAO(dbHost, dbPort, dbUsername, dbPassword);
         // Using the findUserById function and using the ID sent in as a parameter to find a user in the database
@@ -409,8 +412,13 @@ app.post('/users/search/user/:id', function (req, res)
         {
             if (user == null)
             {
+                //Sending a log to the logging handler
+                logger.log("ERROR: INVALID USER ID");
+                logger.log("EXITING: POST /users/search/user/:id Route");
                 res.status(201).json({error: "INVALID USER ID"}); // If no user was returned by the DAO then the ID was invalid
             } else {
+                //Sending a log to the logging handler
+                logger.log("EXITING: POST /users/search/user/:id Route");
                 res.status(200).json(user); // If a user was returned by the DAO, put the user in the response
             }
         });
@@ -430,6 +438,8 @@ app.post('/users/search/user/:id', function (req, res)
  */
 app.get('/users/search/user/email/:email', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: GET /users/search/user/email/:email Route for " + req.params.email);
     // Checking to see if the access is authorized.
     if (req.body.key === API_KEY)
     {
@@ -443,8 +453,13 @@ app.get('/users/search/user/email/:email', function (req, res)
         {
             if (user == null)
             {
+                //Sending a log to the logging handler
+                logger.log("ERROR: USER NOT FOUND");
+                logger.log("EXITING: POST /users/search/user/email Route");
                 res.status(200).json({error: "USER NOT FOUND"}); //If the user was not returned by the DAO, then the user was not found
             } else {
+                //Sending a log to the logging handler
+                logger.log("EXITING: POST /users/search/user/email Route");
                 res.status(200).json(user); //If the user was returned by the DAO, put the user into the response
             }
         });
@@ -464,6 +479,8 @@ app.get('/users/search/user/email/:email', function (req, res)
  */
 app.post('/users', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: POST /users Route");
     // Checking to see if the access is authorized.
     if (req.body.key === API_KEY)
     {
@@ -474,6 +491,9 @@ app.post('/users', function (req, res)
         console.log('In POST /users Route with Post of ' + JSON.stringify(req.body));
         if(!req.body)
         {
+            //Sending a log to the logging handler
+            logger.log("ERROR: INVALID USER POSTED");
+            logger.log("EXITING: POST /users Route");
             // Check for valid POST Body, note this should validate EVERY field of the POST
             res.status(400).json({error: "Invalid User Posted"});
         }
@@ -491,10 +511,15 @@ app.post('/users', function (req, res)
             {
                 if(userId == -1)
                 {
+                    //Sending a log to the logging handler
+                    logger.log("ERROR: CREATING USER FAILED");
+                    logger.log("EXITING: POST /users Route");
                     res.status(201).json({"error" : "Creating User failed"}) //If the response is -1 then something went wrong and the user was not created
                 }
                 else
                 {
+                    //Sending a log to the logging handler
+                    logger.log("EXITING: POST /users Route");
                     res.status(200).json({"success" : "Creating User passed with an ID of " + userId}); //If the response was anything other than -1 the user was created
                 }
             });     
@@ -515,6 +540,8 @@ app.post('/users', function (req, res)
  */
 app.post('/users/login', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: POST /users/login Route");
     // Checking to see if the access is authorized.
     if (req.body.key === API_KEY)
     {
@@ -531,14 +558,20 @@ app.post('/users/login', function (req, res)
         dao.findUserByEmail(req.body.email, function(user){
             if (user == null)
             {
-                console.log("USER NOT FOUND");
+                //Sending a log to the logging handler
+                logger.log("ERROR: USER NOT FOUND");
+                logger.log("EXITING: POST /users/login Route");
                 res.status(202).json({error: "USER NOT FOUND"}); //If the user was not returned by the DAO, then the user was not found
             } else {
                 if (user.password == hash) //Testing if the password matches the password of the user found in the database
                 {
+                    //Sending a log to the logging handler
+                    logger.log("EXITING: POST /users/login Route");
                     res.status(200).json(user); //If the user was returned by the DAO and the password was correct, put the user into the response
                 } else {
-                    console.log("INCORRECT PASSWORD");
+                    //Sending a log to the logging handler
+                    logger.log("ERROR: INCORRECT PASSWORD");
+                    logger.log("EXITING: POST /users/login Route");
                     res.status(201).json({error: "INCORRECT PASSWORD"}); // If this error is thrown then the user was found but the password was incorrect
                 }
             }
@@ -559,6 +592,8 @@ app.post('/users/login', function (req, res)
  */
 app.delete('/users/:id', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: DELETE /users/:id Route with ID of " + req.params.id);
     // Checking to see if the access is authorized.
     if (req.body.key === API_KEY)
     {
@@ -572,10 +607,15 @@ app.delete('/users/:id', function (req, res)
         {
             if(changes == 0)
             {
+                //Sending a log to the logging handler
+                logger.log("ERROR: DELETE USER FAILED");
+                logger.log("EXITING: DELETE /users/:id Route");
                 res.status(200).json({"error" : "Delete User failed"}) //If zero changes were made to the database then the user was not deleted
             }
             else
             {
+                //Sending a log to the logging handler
+                logger.log("EXITING: DELETE /users/:id Route");
                 res.status(200).json({"success" : "Delete User passed"}) //If changes were made to the database then the user was deleted
             }
         });
@@ -595,6 +635,8 @@ app.delete('/users/:id', function (req, res)
  */
 app.put('/users', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: PUT /users Route");
     // Checking to see if the access is authorized.
     if (req.body.key === API_KEY)
     {
@@ -604,6 +646,9 @@ app.put('/users', function (req, res)
         console.log('In PUT /users Route with Post of ' + JSON.stringify(req.body));
         if(!req.body)
         {
+            //Sending a log to the logging handler
+            logger.log("ERROR: INVALID USER POSTED");
+            logger.log("EXITING: PUT /users Route");
             // Check for valid PUT Body, note this should validate EVERY field of the POST
             res.status(400).json({error: "Invalid user Posted"});
         }
@@ -618,10 +663,15 @@ app.put('/users', function (req, res)
             {
                 if(changes == 0)
                 {
+                    //Sending a log to the logging handler
+                    logger.log("WARNING: UPDATING USER PASSED BUT NOTHING WAS CHANGED");
+                    logger.log("EXITING: PUT /users Route");
                     res.status(201).json({error : "Updating User passed but nothing was changed"}) //If there are no changes made to the database, then it will return this status
                 }
                 else
                 {
+                    //Sending a log to the logging handler
+                    logger.log("EXITING: PUT /users Route");
                     res.status(200).json({success : "Updating User passed and data was changed"}); //If there are changes made to the database, then it will return this status
                 }
             });     
