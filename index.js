@@ -13,6 +13,8 @@ const app = express();
 const port = 3000;
 app.use(bodyParser.json());
 app.use(cors());
+var loggly = require('loggly');
+var logger = loggly.createClient({ token:"c699c451-68e8-4a6d-a403-b19343297144", subdomain:"Cared4", sendConsoleErrors: false, tag:"Cared4-API-index" });
 
 //Adding CryptoJS for encrypting the passwords
 const CryptoJS = require('crypto-js');
@@ -37,8 +39,12 @@ app.use(express.static('app/images'))
  */
 app.get('/', function (_req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: default route");
     // Log the location
     console.log('In GET / Route');
+    //Sending a log to the logging handler
+    logger.log("EXITING: default route");
     // Return Test Text
     res.send('This is the default root Route.');
 })
@@ -50,6 +56,8 @@ app.get('/', function (_req, res)
  */
 app.get('/sicknesses', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: GET /sickness Route");
     // Return sickness List as JSON, call SicknassDAO.findSickness(), and return JSON array of Sickness (a string)
     // Log the location
     console.log('In GET /sickness Route');
@@ -58,6 +66,8 @@ app.get('/sicknesses', function (req, res)
     // Using the findSickness function return a JSON of all sicknesses
     dao.findSickness(function(sickness)
     {
+        //Sending a log to the logging handler
+        logger.log("EXITING: GET /sickness Route");
         res.json(sickness);
     });
 })
@@ -69,7 +79,8 @@ app.get('/sicknesses', function (req, res)
  */
 app.get('/sicknesses/search/sickness/:id', function (req, res)
 {
-
+    //Sending a log to the logging handler
+    logger.log("ENTERING: GET /sicknesses/search/sickness/:id Route for " + req.params.id);
     // Return sicknesses List as JSON, call SicknessDAO.findSicknessById(), and return JSON array of sicknesses
     // Log the location and the request parameters
     console.log('In GET /sicknesses/search/sickness/id Route for ' + req.params.id);
@@ -80,8 +91,13 @@ app.get('/sicknesses/search/sickness/:id', function (req, res)
     {
         if (sickness == null)
         {
+            //Sending a log to the logging handler
+            logger.log("ERROR: INVALID SICKNESS ID");
+            logger.log("EXITING: GET /sicknesses/search/sickness/:id Route");
             res.status(200).json({error: "INVALID SICKNESS ID"}); // If the DAO does not return a sickness then the ID is invalid
         } else {
+            //Sending a log to the logging handler
+            logger.log("EXITING: GET /sicknesses/search/sickness/:id Route");
             res.status(200).json(sickness); // If the DAO returns a sickness then add it to the response
         }
     });
@@ -90,8 +106,10 @@ app.get('/sicknesses/search/sickness/:id', function (req, res)
 /** 
  * GET Route that does a wildcard search for all sicknesses searching by symptoms from the database
  */
-app.get('/sicknesses/search/symptoms/:symptoms', function (req, res)
+app.post('/sicknesses/search/symptoms/:symptoms', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: POST /sicknesses/search/symptoms/:symptoms Route for " + req.params.symptoms);
     // Return sicknesses List as JSON, call SicknessDAO.findSicknessBySymptoms(), and return JSON array of sicknesses
     // Log the location and the request parameters
     console.log(
@@ -100,12 +118,22 @@ app.get('/sicknesses/search/symptoms/:symptoms', function (req, res)
     );
     // Create a new instance of the DAO
     let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
+    //TODO Implement this concept
+    if (req.body.conditions)
+    {
+        console.log("BINGUS");
+    }
     // Using the findSicknessBySymptoms function and the Id in the parameters to find a sickness
     dao.findSicknessBySymptoms(req.params.symptoms, function(sickness)
     {
         if (sickness == null) {
+            //Sending a log to the logging handler
+            logger.log("ERROR: NO ILLNESS FOUND");
+            logger.log("EXITING: POST /sicknesses/search/symptoms/:symptoms Route");
             res.status(200).json({ error: "NO ILLNESS FOUND" }); // If the DAO does not return a sickness then it was not found in the database
         } else {
+            //Sending a log to the logging handler
+            logger.log("EXITING: POST /sicknesses/search/symptoms/:symptoms Route");
             res.status(200).json(sickness); // If the DAO returns a sickness then add it to the response
         }
     });
@@ -116,6 +144,8 @@ app.get('/sicknesses/search/symptoms/:symptoms', function (req, res)
  */
 app.get('/sicknesses/search/name/:name', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: GET /sicknesses/search/name/:name Route for " + req.params.name);
     // Return sicknesses List as JSON, call SicknessDAO.findSicknessByName(), and return JSON array of sicknesses
     // Log the location and the request parameters
     console.log('In GET /sicknesses/search/sickness/symptoms Route for ' + req.params.name);
@@ -124,8 +154,13 @@ app.get('/sicknesses/search/name/:name', function (req, res)
     // Using the findSicknessByName function and the name in the parameters to find a sickness
     dao.findSicknessByName(req.params.name, function (sickness) {
       if (sickness == null) {
+        //Sending a log to the logging handler
+        logger.log("ERROR: NO ILLNESS FOUND");
+        logger.log("EXITING: GET /sicknesses/search/name/:name Route");
         res.status(201).json({ error: "NO ILLNESS FOUND" }); // If the DAO does not return a sickness then it was not found in the database
       } else {
+        //Sending a log to the logging handler
+        logger.log("EXITING: GET /sicknesses/search/name/:name Route");
         res.status(200).json(sickness); // If the DAO returns a sickness then add it to the response
       }
     });
@@ -136,6 +171,8 @@ app.get('/sicknesses/search/name/:name', function (req, res)
  */
 app.get('/sicknesses/random', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: GET /sicknesses/random Route");
     // Return sicknesses List as JSON, call SicknessDAO.findSicknessByRandom(), and return JSON array of sicknesses
     // Log the location and the request parameters
     console.log('In GET /sicknesses/random Route');
@@ -144,8 +181,13 @@ app.get('/sicknesses/random', function (req, res)
     // Using the findSicknessByName function and the name in the parameters to find a sickness
     dao.findSicknessByRandom(function (sickness) {
       if (sickness == null) {
+        //Sending a log to the logging handler
+        logger.log("ERROR: SOMETHING WENT WRONG. NO ILLNESSES RETURNED.");
+        logger.log("EXITING: GET /sicknesses/random Route");
         res.status(201).json({ error: "SOMETHING WENT WRONG" }); // If the DAO does not return a sickness then it was not found in the database
       } else {
+        //Sending a log to the logging handler
+        logger.log("EXITING: GET /sicknesses/random Route");
         res.status(200).json(sickness); // If the DAO returns a sickness then add it to the response
       }
     });
@@ -158,6 +200,8 @@ app.get('/sicknesses/random', function (req, res)
  */
 app.post('/sickness', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: POST /sickness Route");
     // Checking to see if the access is authorized.
     if (req.body.key === API_KEY)
     {
@@ -170,6 +214,9 @@ app.post('/sickness', function (req, res)
         // Check for valid POST Body, note this should validate EVERY field of the POST
         if(!req.body)
         {
+            //Sending a log to the logging handler
+            logger.log("ERROR: INVALID SICKNESS POSTED");
+            logger.log("EXITING: POST /sickness Route");
             // Return the error in the response
             res.status(400).json({error: "Invalid Sickness Posted"});
         }
@@ -184,12 +231,23 @@ app.post('/sickness', function (req, res)
             dao.create(sickness, function(sicknessId)
             {
                 if(sicknessId == -1)
+                {
+                    //Sending a log to the logging handler
+                    logger.log("ERROR: INVALID SICKNESS POSTED");
+                    logger.log("EXITING: POST /sickness Route");
                     res.status(200).json({"error" : "Creating Sickness failed"}) // If the sickness ID is set to -1 then no sickness was created
-                else
+                }
+                else{
+                    //Sending a log to the logging handler
+                    logger.log("EXITING: POST /sickness Route");
                     res.status(200).json({"success" : "Creating Sickness passed with an ID of " + sicknessId}); // If a sickness ID is returned then the sickness was created
+                }
             });     
         }
     } else {
+        //Sending a log to the logging handler
+        logger.log("ERROR: UNAUTHORIZED ACCESS");
+        logger.log("EXITING: POST /sickness Route");
         //If the access is not authorized return error.
         res.status(403).json({error: "UNAUTHORIZED ACCESS"});
     }
@@ -202,6 +260,8 @@ app.post('/sickness', function (req, res)
  */
 app.delete('/sickness/:id', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: DELETE /sickness/:id Route with ID of " + req.params.id);
     // Checking to see if the access is authorized.
     if (req.body.key === API_KEY)
     {
@@ -216,11 +276,23 @@ app.delete('/sickness/:id', function (req, res)
         dao.delete(sicknessId, function(changes)
         {
             if(changes == 0)
+            {
+                //Sending a log to the logging handler
+                logger.log("ERROR: DELETE SICKNESS FAILED");
+                logger.log("EXITING: DELETE /sickness Route");
                 res.status(200).json({"error" : "Delete Sickness failed"}) // If no changes have been made, this error will be logged
+            }
             else
+            {
+                //Sending a log to the logging handler
+                logger.log("EXITING: DELETE /sickness Route");
                 res.status(200).json({"success" : "Delete Sickness passed"}) // If changes were made then the delete was a success
+            }
         });
     } else {
+        //Sending a log to the logging handler
+        logger.log("ERROR: UNAUTHORIZED ACCESS");
+        logger.log("EXITING: DELETE /sickness Route");
         //If the access is not authorized return error.
         res.status(403).json({error: "UNAUTHORIZED ACCESS"});
     }
@@ -233,6 +305,8 @@ app.delete('/sickness/:id', function (req, res)
  */
 app.put('/sickness', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: PUT /sickness Route");
     // Checking to see if the access is authorized.
     if (req.body.key === API_KEY)
     {
@@ -257,12 +331,24 @@ app.put('/sickness', function (req, res)
             dao.update(sickness, function(changes)
             {
                 if(changes == 0)
+                {
+                    //Sending a log to the logging handler
+                    logger.log("WARNING: Updating sickness passed but nothing was changed");
+                    logger.log("EXITING: PUT /sickness Route");
                     res.status(200).json({error : "Updating Sickness passed but nothing was changed"}) // If no changes were made then return this error
+                }
                 else
+                {
+                    //Sending a log to the logging handler
+                    logger.log("EXITING: PUT /sickness Route");
                     res.status(200).json({success : "Updating Sickness passed and data was changed"}); // If changes were made then return this message
+                }
             });     
         }
     } else {
+        //Sending a log to the logging handler
+        logger.log("ERROR: UNAUTHORIZED ACCESS");
+        logger.log("EXITING: PUT /sickness Route");
         //If the access is not authorized return error.
         res.status(403).json({error: "UNAUTHORIZED ACCESS"});
     }
@@ -278,6 +364,8 @@ app.put('/sickness', function (req, res)
  */
 app.get('/users', function (req, res)
 {
+    //Sending a log to the logging handler
+    logger.log("ENTERING: GET /users Route");
     // Checking to see if the access is authorized.
     if (req.body.key === API_KEY)
     {
@@ -289,9 +377,13 @@ app.get('/users', function (req, res)
         // Using the findUsers function, return all of the users
         dao.findUsers(function(user)
         {
+            logger.log("EXITING: GET /users Route");
             res.json(user); // Responding with a JSON of all users
         });
     } else {
+        //Sending a log to the logging handler
+        logger.log("ERROR: UNAUTHORIZED ACCESS");
+        logger.log("EXITING: GET /users Route");
         //If the access is not authorized return error.
         res.status(403).json({error: "UNAUTHORIZED ACCESS"});
     }
@@ -302,7 +394,7 @@ app.get('/users', function (req, res)
  * @param req User request
  * @param res Function response
  */
-app.get('/users/search/user/:id', function (req, res)
+app.post('/users/search/user/:id', function (req, res)
 {
     // Checking to see if the access is authorized.
     if (req.body.key === API_KEY)
@@ -317,12 +409,15 @@ app.get('/users/search/user/:id', function (req, res)
         {
             if (user == null)
             {
-                res.status(200).json({error: "INVALID USER ID"}); // If no user was returned by the DAO then the ID was invalid
+                res.status(201).json({error: "INVALID USER ID"}); // If no user was returned by the DAO then the ID was invalid
             } else {
                 res.status(200).json(user); // If a user was returned by the DAO, put the user in the response
             }
         });
     } else {
+        //Sending a log to the logging handler
+        logger.log("ERROR: UNAUTHORIZED ACCESS");
+        logger.log("EXITING: POST /users/search/user/:id Route");
         //If the access is not authorized return error.
         res.status(403).json({error: "UNAUTHORIZED ACCESS"});
     }
@@ -354,6 +449,9 @@ app.get('/users/search/user/email/:email', function (req, res)
             }
         });
     } else {
+        //Sending a log to the logging handler
+        logger.log("ERROR: UNAUTHORIZED ACCESS");
+        logger.log("EXITING: GET /users/search/user/email/:email Route");
         //If the access is not authorized return error.
         res.status(403).json({ error: "UNAUTHORIZED ACCESS" });
     }
@@ -392,12 +490,19 @@ app.post('/users', function (req, res)
             dao.create(user, function(userId)
             {
                 if(userId == -1)
-                    res.status(200).json({"error" : "Creating User failed"}) //If the response is -1 then something went wrong and the user was not created
+                {
+                    res.status(201).json({"error" : "Creating User failed"}) //If the response is -1 then something went wrong and the user was not created
+                }
                 else
+                {
                     res.status(200).json({"success" : "Creating User passed with an ID of " + userId}); //If the response was anything other than -1 the user was created
+                }
             });     
         }
     } else {
+        //Sending a log to the logging handler
+        logger.log("ERROR: UNAUTHORIZED ACCESS");
+        logger.log("EXITING: POST /users Route");
         //If the access is not authorized return error.
         res.status(403).json({ error: "UNAUTHORIZED ACCESS" });
     }
@@ -426,17 +531,22 @@ app.post('/users/login', function (req, res)
         dao.findUserByEmail(req.body.email, function(user){
             if (user == null)
             {
+                console.log("USER NOT FOUND");
                 res.status(202).json({error: "USER NOT FOUND"}); //If the user was not returned by the DAO, then the user was not found
             } else {
                 if (user.password == hash) //Testing if the password matches the password of the user found in the database
                 {
                     res.status(200).json(user); //If the user was returned by the DAO and the password was correct, put the user into the response
                 } else {
+                    console.log("INCORRECT PASSWORD");
                     res.status(201).json({error: "INCORRECT PASSWORD"}); // If this error is thrown then the user was found but the password was incorrect
                 }
             }
         });
     } else {
+        //Sending a log to the logging handler
+        logger.log("ERROR: UNAUTHORIZED ACCESS");
+        logger.log("EXITING: POST /users/login Route");
         //If the access is not authorized return error.
         res.status(403).json({ error: "UNAUTHORIZED ACCESS" });
     }
@@ -461,11 +571,18 @@ app.delete('/users/:id', function (req, res)
         dao.delete(userId, function(changes)
         {
             if(changes == 0)
+            {
                 res.status(200).json({"error" : "Delete User failed"}) //If zero changes were made to the database then the user was not deleted
+            }
             else
+            {
                 res.status(200).json({"success" : "Delete User passed"}) //If changes were made to the database then the user was deleted
+            }
         });
     } else {
+        //Sending a log to the logging handler
+        logger.log("ERROR: UNAUTHORIZED ACCESS");
+        logger.log("EXITING: DELETE /users/:id Route");
         //If the access is not authorized return error.
         res.status(403).json({ error: "UNAUTHORIZED ACCESS" });
     }
@@ -500,12 +617,19 @@ app.put('/users', function (req, res)
             dao.update(user, function(changes)
             {
                 if(changes == 0)
-                    res.status(200).json({error : "Updating User passed but nothing was changed"}) //If there are no changes made to the database, then it will return this status
+                {
+                    res.status(201).json({error : "Updating User passed but nothing was changed"}) //If there are no changes made to the database, then it will return this status
+                }
                 else
+                {
                     res.status(200).json({success : "Updating User passed and data was changed"}); //If there are changes made to the database, then it will return this status
+                }
             });     
         }
     } else {
+        //Sending a log to the logging handler
+        logger.log("ERROR: UNAUTHORIZED ACCESS");
+        logger.log("EXITING: PUT /users Route");
         //If the access is not authorized return error.
         res.status(403).json({ error: "UNAUTHORIZED ACCESS" });
     }

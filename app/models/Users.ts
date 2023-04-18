@@ -66,7 +66,7 @@ export class User {
      * @type {number}
      * @memberof User
      */
-    private image: number = 0;
+    private image: string = "";
 
     /**
      * User Constructor
@@ -81,7 +81,7 @@ export class User {
      * @param conditions The user's pre existing conditions
      * @param image The user's profile picture
      */
-    constructor(id: number,firstName: string,lastName: string,email: string,password: string,birthday: string,sex: string,conditions: string,image: number) 
+    constructor(id: number,firstName: string,lastName: string,email: string,password: string,birthday: string,sex: string,conditions: string,image: string) 
     {
         this.id = id;
         this.firstName = firstName;
@@ -261,7 +261,7 @@ export class User {
       * @type {number}
       * @memberof User
       */
-     public get Image(): number  
+     public get Image(): string  
      {
 		return this.image;
 	}
@@ -271,7 +271,7 @@ export class User {
       *
       * @memberof User
       */
-     public set Image(value: number ) 
+     public set Image(value: string) 
      {
 		this.image = value;
 	}

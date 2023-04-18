@@ -1,6 +1,8 @@
 import { Sicknesses } from "../models/Sicknesses";
 import * as mysql from "mysql";
 import * as util from "util";
+var loggly = require('loggly');
+var logger = loggly.createClient({ token:"c699c451-68e8-4a6d-a403-b19343297144", subdomain:"Cared4", sendConsoleErrors: false, tag:"Cared4-API-SicknessDAO" });
 
 /*
 DAO file used for connecting the API to the database
@@ -41,29 +43,55 @@ export class SicknessDAO
      */
     public create(sickness:Sicknesses, callback: any)
     {
-        // Get pooled database connection and run queries   
-        this.pool.getConnection(async function(err:any, connection:any)
+        //Sending a log to the logging handler
+        logger.log("ENTERING: create() Inside SicknessDAO.ts");
+        //Trying to create a user
+        try
         {
-            // Release connection in the pool
-            connection.release();
+            // Get pooled database connection and run queries   
+            this.pool.getConnection(async function(err:any, connection:any)
+            {
+                // Release connection in the pool
+                connection.release();
+    
+                // Throw error if an error
+                if (err) {
+                    //Sending a log to the logging handler
+                    logger.log("ERROR: " + err);
+                    throw err;
+                };
+                //Sending a log to the logging handler
+                logger.log("Creating and executing an INSERT query");
+                // Use Promisfy Util to make an async function and insert Sickness
+                connection.query = util.promisify(connection.query);
+                // Database query assigned to a result variable
+                let result1 = await connection.query('INSERT INTO SICKNESSES (NAME, COMMONNAME, SYMPTOMS, DESCRIPTION, RARITY, SEVERITY, TREATMENT, STRONGAGAINST, REQUIREMENTS, COMMONTARGETS) VALUES(?,?,?,?,?,?,?,?,?,?)', [sickness.Name, sickness.CommonName, sickness.Symptoms, sickness.Description, sickness.Rarity, sickness.Severity, sickness.Treatment, sickness.StrongAgainst, sickness.Requirements, sickness.CommonTargets]);
+                // If there are no rows affected then return -1 to signal something went wrong
+                if(result1.affectedRows != 1)
+                {
+                    //Sending a log to the logging handler
+                    logger.log("EXITING: create() Inside SicknessDAO.ts");
+                    callback(-1);
+                }
+    
+                //getting the id of the newly created sickness
+                let sicknessId = result1.insertId;
+                //Sending a log to the logging handler
+                logger.log("INSERT Query executed. New Sickness ID = " + sicknessId);
+    
+                //Sending a log to the logging handler
+                logger.log("EXITING: create() Inside SicknessDAO.ts");
+                // Do a callback to return the results
+                callback(sicknessId);
+            });
 
-            // Throw error if an error
-            if (err) throw err;
-
-            // Use Promisfy Util to make an async function and insert Sickness
-            connection.query = util.promisify(connection.query);
-            // Database query assigned to a result variable
-            let result1 = await connection.query('INSERT INTO SICKNESSES (NAME, COMMONNAME, SYMPTOMS, DESCRIPTION, RARITY, SEVERITY, TREATMENT, STRONGAGAINST, REQUIREMENTS, COMMONTARGETS) VALUES(?,?,?,?,?,?,?,?,?,?)', [sickness.Name, sickness.CommonName, sickness.Symptoms, sickness.Description, sickness.Rarity, sickness.Severity, sickness.Treatment, sickness.StrongAgainst, sickness.Requirements, sickness.CommonTargets]);
-            // If there are no rows affected then return -1 to signal something went wrong
-            if(result1.affectedRows != 1)
-               callback(-1);
-
-            //getting the id of the newly created sickness
-            let sicknessId = result1.insertId;
-
-            // Do a callback to return the results
-            callback(sicknessId);
-        });
+        } catch (error)
+        {
+            //Sending a log to the logging handler
+            logger.log("ERROR: Something went wrong creating sickness: " + error);
+            logger.log("EXITING: create() Inside SicknessDAO.ts");
+            callback(-1);
+        }
     }
 
      /**
@@ -73,32 +101,51 @@ export class SicknessDAO
      */
     public findSickness(callback: any)
     {
+        //Sending a log to the logging handler
+        logger.log("ENTERING: findSickness() Inside SicknessDAO.ts");
         // List of sicknesses to return
         let sickness:Sicknesses[] = [];
-        
-        // Get a pooled connection to the database, run the query to get all the Sicknesses, and return the List of Sicknesses
-        this.pool.getConnection(async function(err:any, connection:any)
+        //Trying to find all sicknesses
+        try
         {
-            // Release connection in the pool
-            connection.release();
-
-            // Throw error if an error
-            if (err) throw err;
-
-            // Use Promisfy Util to make an async function and run query to get all Sicknesses
-            connection.query = util.promisify(connection.query);
-            // Database query assigned to a result variable
-            let result1 = await connection.query('SELECT * FROM `SICKNESSES`');
-            // Looping over the results and pushing each sickness that has been retrieved from the database to the list
-            for(let x=0;x < result1.length;++x)
+            // Get a pooled connection to the database, run the query to get all the Sicknesses, and return the List of Sicknesses
+            this.pool.getConnection(async function(err:any, connection:any)
             {
-                // Add sickness and its data to the list
-                sickness.push(new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS));
-            }
-
-            // Do a callback to return the results
+                // Release connection in the pool
+                connection.release();
+    
+                // Throw error if an error
+                if (err) {
+                    //Sending a log to the logging handler
+                    logger.log("ERROR: " + err);
+                    throw err;
+                };
+                //Sending a log to the logging handler
+                logger.log("Creating and executing a SELECT query");
+                // Use Promisfy Util to make an async function and run query to get all Sicknesses
+                connection.query = util.promisify(connection.query);
+                // Database query assigned to a result variable
+                let result1 = await connection.query('SELECT * FROM `SICKNESSES`');
+                // Looping over the results and pushing each sickness that has been retrieved from the database to the list
+                for(let x=0;x < result1.length;++x)
+                {
+                    // Add sickness and its data to the list
+                    sickness.push(new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS, result1[x].IMG));
+                }
+                //Sending a log to the logging handler
+                logger.log("SELECT Query executed. Sicknesses Returned.");
+                //Sending a log to the logging handler
+                logger.log("EXITING: findSickness() Inside SicknessDAO.ts");
+                // Do a callback to return the results
+                callback(sickness);
+            });
+        } catch (error)
+        {
+            //Sending a log to the logging handler
+            logger.log("ERROR: Something went wrong finding all sicknesses: " + error);
+            logger.log("EXITING: findSickness() Inside SicknessDAO.ts");
             callback(sickness);
-        });
+        }
     }
 
     /**
@@ -109,31 +156,52 @@ export class SicknessDAO
      */
     public findSicknessById(id:number, callback: any)
     {
+        //Sending a log to the logging handler
+        logger.log("ENTERING: findSicknessById() Inside SicknessDAO.ts");
         // Sickness that's going to be returned
         let sickness:Sicknesses;
 
-        // Get pooled database connection and run queries   
-        this.pool.getConnection(async function(err:any, connection:any)
+        //Trying to find a sickness by id
+        try
         {
-            // Release connection in the pool
-            connection.release();
-
-            // Throw error if an error
-            if (err) throw err;
-
-            // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
-            connection.query = util.promisify(connection.query);
-            // Database query assigned to a result variable
-            let result1 = await connection.query("SELECT * FROM `SICKNESSES` WHERE ID = ?", id);
-            // Looping over the results and pushing each sickness that has been retrieved from the database to the list (should only be one)
-            for(let x=0;x < result1.length;++x)
+            // Get pooled database connection and run queries   
+            this.pool.getConnection(async function(err:any, connection:any)
             {
-                // Get sickness information
-                sickness = new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS);
-            }
-            // Do a callback to return the results
-            callback(sickness);
-        });
+                // Release connection in the pool
+                connection.release();
+    
+                // Throw error if an error
+                if (err) {
+                    //Sending a log to the logging handler
+                    logger.log("ERROR: " + err);
+                    throw err;
+                };
+                //Sending a log to the logging handler
+                logger.log("Creating and executing a SELECT query");
+                // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
+                connection.query = util.promisify(connection.query);
+                // Database query assigned to a result variable
+                let result1 = await connection.query("SELECT * FROM `SICKNESSES` WHERE ID = ?", id);
+                //Sending a log to the logging handler
+                logger.log("SELECT Query executed. Sicknesses returned = " + result1.length);
+                // Looping over the results and pushing each sickness that has been retrieved from the database to the list (should only be one)
+                for(let x=0;x < result1.length;++x)
+                {
+                    // Get sickness information
+                    sickness = new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS, result1[x].IMG);
+                }
+                //Sending a log to the logging handler
+                logger.log("EXITING: findSicknessById() Inside SicknessDAO.ts");
+                // Do a callback to return the results
+                callback(sickness);
+            });
+        } catch (error)
+        {
+            //Sending a log to the logging handler
+            logger.log("ERROR: Something went wrong finding a sickness by ID: " + error);
+            logger.log("EXITING: findSicknessById() Inside SicknessDAO.ts");
+            callback(null);
+        }
     }
 
     /**
@@ -144,31 +212,52 @@ export class SicknessDAO
      */
     public findSicknessBySymptoms(symptoms:string, callback: any)
     {
+        //Sending a log to the logging handler
+        logger.log("ENTERING: findSicknessBySymptoms() Inside SicknessDAO.ts");
         // Sickness that's going to be returned
         let sicknesses:Sicknesses[] = [];
 
-        // Get pooled database connection and run queries   
-        this.pool.getConnection(async function(err:any, connection:any)
+        //Trying to find a sickness by symptoms
+        try
         {
-            // Release connection in the pool
-            connection.release();
-
-            // Throw error if an error
-            if (err) throw err;
-
-            // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
-            connection.query = util.promisify(connection.query);
-            // Database query assigned to a result variable
-            let result1 = await connection.query("SELECT * FROM `SICKNESSES` WHERE SYMPTOMS LIKE '%"+ symptoms + "%'");
-            // Looping over the results and pushing each sickness that has been retrieved from the database to the list (should only be one)
-            for(let x=0;x < result1.length;++x)
+            // Get pooled database connection and run queries   
+            this.pool.getConnection(async function(err:any, connection:any)
             {
-                // Get sickness information
-                sicknesses.push(new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS));
-            }
-            // Do a callback to return the results
+                // Release connection in the pool
+                connection.release();
+    
+                // Throw error if an error
+                if (err) {
+                    //Sending a log to the logging handler
+                    logger.log("ERROR: " + err);
+                    throw err;
+                };
+                //Sending a log to the logging handler
+                logger.log("Creating and executing a SELECT query");
+                // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
+                connection.query = util.promisify(connection.query);
+                // Database query assigned to a result variable
+                let result1 = await connection.query("SELECT * FROM `SICKNESSES` WHERE SYMPTOMS LIKE '%"+ symptoms + "%'");
+                //Sending a log to the logging handler
+                logger.log("SELECT Query executed. Sicknesses returned = " + result1.length);
+                // Looping over the results and pushing each sickness that has been retrieved from the database to the list (should only be one)
+                for(let x=0;x < result1.length;++x)
+                {
+                    // Get sickness information
+                    sicknesses.push(new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS, result1[x].IMG));
+                }
+                //Sending a log to the logging handler
+                logger.log("EXITING: findSicknessBySymptoms() Inside SicknessDAO.ts");
+                // Do a callback to return the results
+                callback(sicknesses);
+            });
+        } catch (error)
+        {
+            //Sending a log to the logging handler
+            logger.log("ERROR: Something went wrong finding a sickness by symptoms: " + error);
+            logger.log("EXITING: findSicknessBySymptoms() Inside SicknessDAO.ts");
             callback(sicknesses);
-        });
+        }
     }
 
     /**
@@ -179,31 +268,52 @@ export class SicknessDAO
      */
     public findSicknessByName(name:string, callback: any)
     {
+        //Sending a log to the logging handler
+        logger.log("ENTERING: findSicknessByName() Inside SicknessDAO.ts");
         // Sickness that's going to be returned
         let sicknesses:Sicknesses[] = [];
 
-        // Get pooled database connection and run queries   
-        this.pool.getConnection(async function(err:any, connection:any)
+        //Trying to find a sickness by name
+        try
         {
-            // Release connection in the pool
-            connection.release();
-
-            // Throw error if an error
-            if (err) throw err;
-
-            // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
-            connection.query = util.promisify(connection.query);
-            // Database query assigned to a result variable
-            let result1 = await connection.query("SELECT * FROM `SICKNESSES` WHERE NAME LIKE '%"+ name + "%'");
-            // Looping over the results and pushing each sickness that has been retrieved from the database to the list (should only be one)
-            for(let x=0;x < result1.length;++x)
+            // Get pooled database connection and run queries   
+            this.pool.getConnection(async function(err:any, connection:any)
             {
-                // Get sickness information
-                sicknesses.push(new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS));
-            }
-            // Do a callback to return the results
+                // Release connection in the pool
+                connection.release();
+    
+                // Throw error if an error
+                if (err) {
+                    //Sending a log to the logging handler
+                    logger.log("ERROR: " + err);
+                    throw err;
+                };
+                //Sending a log to the logging handler
+                logger.log("Creating and executing a SELECT query");
+                // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
+                connection.query = util.promisify(connection.query);
+                // Database query assigned to a result variable
+                let result1 = await connection.query("SELECT * FROM `SICKNESSES` WHERE NAME LIKE '%"+ name + "%'");
+                //Sending a log to the logging handler
+                logger.log("SELECT Query executed. Sicknesses returned = " + result1.length);
+                // Looping over the results and pushing each sickness that has been retrieved from the database to the list (should only be one)
+                for(let x=0;x < result1.length;++x)
+                {
+                    // Get sickness information
+                    sicknesses.push(new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS, result1[x].IMG));
+                }
+                //Sending a log to the logging handler
+                logger.log("EXITING: findSicknessByName() Inside SicknessDAO.ts");
+                // Do a callback to return the results
+                callback(sicknesses);
+            });
+        }catch (error)
+        {
+            //Sending a log to the logging handler
+            logger.log("ERROR: Something went wrong finding a sickness by name: " + error);
+            logger.log("EXITING: findSicknessByName() Inside SicknessDAO.ts");
             callback(sicknesses);
-        });
+        }
     }
 
     /**
@@ -213,32 +323,53 @@ export class SicknessDAO
      */
     public findSicknessByRandom(callback: any)
     {
+        //Sending a log to the logging handler
+        logger.log("ENTERING: findSicknessByRandom() Inside SicknessDAO.ts");
         // List of sicknesses to return
         let sickness:Sicknesses[] = [];
              
-        // Get a pooled connection to the database, run the query to get all the Sicknesses, and return the List of Sicknesses
-        this.pool.getConnection(async function(err:any, connection:any)
+        //Trying to find random sicknesses
+        try 
         {
-            // Release connection in the pool
-            connection.release();
-     
-            // Throw error if an error
-            if (err) throw err;
-     
-            // Use Promisfy Util to make an async function and run query to get all Sicknesses
-            connection.query = util.promisify(connection.query);
-            // Database query assigned to a result variable
-            let result1 = await connection.query('SELECT * FROM `SICKNESSES` ORDER BY RAND() LIMIT 3');
-            // Looping over the results and pushing each sickness that has been retrieved from the database to the list
-            for(let x=0;x < result1.length;++x)
+            // Get a pooled connection to the database, run the query to get all the Sicknesses, and return the List of Sicknesses
+            this.pool.getConnection(async function(err:any, connection:any)
             {
-                // Add sickness and its data to the list
-                sickness.push(new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS));
-            }
-     
-            // Do a callback to return the results
+                // Release connection in the pool
+                connection.release();
+         
+                // Throw error if an error
+                if (err) {
+                    //Sending a log to the logging handler
+                    logger.log("ERROR: " + err);
+                    throw err;
+                };
+                //Sending a log to the logging handler
+                logger.log("Creating and executing a SELECT query");
+                // Use Promisfy Util to make an async function and run query to get all Sicknesses
+                connection.query = util.promisify(connection.query);
+                // Database query assigned to a result variable
+                let result1 = await connection.query('SELECT * FROM `SICKNESSES` ORDER BY RAND() LIMIT 3');
+                //Sending a log to the logging handler
+                logger.log("SELECT Query executed. Sicknesses returned = " + result1.length);
+                // Looping over the results and pushing each sickness that has been retrieved from the database to the list
+                for(let x=0;x < result1.length;++x)
+                {
+                    // Add sickness and its data to the list
+                    sickness.push(new Sicknesses(result1[x].ID, result1[x].NAME, result1[x].COMMONNAME, result1[x].SYMPTOMS, result1[x].DESCRIPTION, result1[x].RARITY, result1[x].SEVERITY, result1[x].TREATMENT, result1[x].STRONGAGAINST, result1[x].REQUIREMENTS, result1[x].COMMONTARGETS, result1[x].IMG));
+                }
+         
+                //Sending a log to the logging handler
+                logger.log("EXITING: findSicknessByRandom() Inside SicknessDAO.ts");
+                // Do a callback to return the results
+                callback(sickness);
+            });
+        } catch (error)
+        {
+            //Sending a log to the logging handler
+            logger.log("ERROR: Something went wrong finding a random sickness: " + error);
+            logger.log("EXITING: findSicknessByRandom() Inside SicknessDAO.ts");
             callback(sickness);
-        });
+        }
     }
 
      /**
@@ -249,29 +380,51 @@ export class SicknessDAO
      */
     public update(sickness:Sicknesses, callback: any)
     {
-        // Get pooled database connection and run queries   
-        this.pool.getConnection(async function(err:any, connection:any)
+        //Sending a log to the logging handler
+        logger.log("ENTERING: update() Inside SicknessDAO.ts");
+
+        //Trying to update a sickness
+        try
         {
-            // Release connection in the pool
-            connection.release();
- 
-            // Throw error if an error
-            if (err) throw err;
- 
-             // Use Promisfy Util to make an async function and update Sickness
-            let changes = 0;
-            // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
-            connection.query = util.promisify(connection.query);
-            // Database query assigned to a result variable
-            let result1 = await connection.query("UPDATE `SICKNESSES` SET NAME=?, COMMONNAME=?, SYMPTOMS=?, DESCRIPTION=?, RARITY=?, SEVERITY=?, TREATMENT=?, STRONGAGAINST=?, REQUIREMENTS=?, COMMONTARGETS=? WHERE ID=?", [sickness.Name, sickness.CommonName, sickness.Symptoms, sickness.Description, sickness.Rarity, sickness.Severity, sickness.Treatment, sickness.StrongAgainst, sickness.Requirements, sickness.CommonTargets]);
-            // If the result indicates that a row was updated, then the number of changes increases
-            if(result1.changedRows != 0)
-                ++changes;
-            //Log the changes
-            console.log(changes);
-            // Do a callback to return the results
-            callback(changes);
-        });
+            // Get pooled database connection and run queries   
+            this.pool.getConnection(async function(err:any, connection:any)
+            {
+                // Release connection in the pool
+                connection.release();
+     
+                // Throw error if an error
+                if (err) {
+                    //Sending a log to the logging handler
+                    logger.log("ERROR: " + err);
+                    throw err;
+                };
+                // Use Promisfy Util to make an async function and update Sickness
+                let changes = 0;
+                //Sending a log to the logging handler
+                logger.log("Creating and executing an UPDATE query");
+                // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
+                connection.query = util.promisify(connection.query);
+                // Database query assigned to a result variable
+                let result1 = await connection.query("UPDATE `SICKNESSES` SET NAME=?, COMMONNAME=?, SYMPTOMS=?, DESCRIPTION=?, RARITY=?, SEVERITY=?, TREATMENT=?, STRONGAGAINST=?, REQUIREMENTS=?, COMMONTARGETS=? WHERE ID=?", [sickness.Name, sickness.CommonName, sickness.Symptoms, sickness.Description, sickness.Rarity, sickness.Severity, sickness.Treatment, sickness.StrongAgainst, sickness.Requirements, sickness.CommonTargets]);
+                // If the result indicates that a row was updated, then the number of changes increases
+                if(result1.changedRows != 0)
+                    ++changes;
+                //Sending a log to the logging handler
+                logger.log("UPDATE Query executed. Rows affected = " + changes);
+                //Log the changes
+                console.log(changes);
+                //Sending a log to the logging handler
+                logger.log("EXITING: update() Inside SicknessDAO.ts");
+                // Do a callback to return the results
+                callback(changes);
+            });
+        }catch (error)
+        {
+            //Sending a log to the logging handler
+            logger.log("ERROR: Something went wrong updating a sickness: " + error);
+            logger.log("EXITING: update() Inside SicknessDAO.ts");
+            callback(0);
+        }
     }
 
      /**
@@ -282,27 +435,47 @@ export class SicknessDAO
      * */
     public delete(sicknessId:number, callback: any)
     {
-        // Get pooled database connection and run queries   
-        this.pool.getConnection(async function(err:any, connection:any)
+        //Sending a log to the logging handler
+        logger.log("ENTERING: delete() Inside SicknessDAO.ts");
+
+        //Trying to delete a sickness
+        try
         {
-            // Release connection in the pool
-            connection.release();
-
-            // Throw error if an error
-           if (err) throw err;
-
-            // Use Promisfy Util to make an async function and run query to delete Sickness
-            let changes = 0;
-            // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
-            connection.query = util.promisify(connection.query);
-            // Database query assigned to a result variable
-            let result1 = await connection.query('DELETE FROM `SICKNESSES` WHERE ID=?', [sicknessId]);
-            // Changes made to the database being saved to a variable
-            changes = changes + result1.affectedRows;
-
-            // Do a callback to return the results
-            callback(changes);
-        });
+            // Get pooled database connection and run queries   
+            this.pool.getConnection(async function(err:any, connection:any)
+            {
+                // Release connection in the pool
+                connection.release();
+                // Throw error if an error
+                if (err) {
+                    //Sending a log to the logging handler
+                    logger.log("ERROR: " + err);
+                    throw err;
+                };
+                // Use Promisfy Util to make an async function and run query to delete Sickness
+                let changes = 0;
+                //Sending a log to the logging handler
+                logger.log("Creating and executing a DELETE query");
+                // Use Promisfy Util to make an async function and run query to get all Sicknesses for search
+                connection.query = util.promisify(connection.query);
+                // Database query assigned to a result variable
+                let result1 = await connection.query('DELETE FROM `SICKNESSES` WHERE ID=?', [sicknessId]);
+                // Changes made to the database being saved to a variable
+                changes = changes + result1.affectedRows;
+                //Sending a log to the logging handler
+                logger.log("DELETE Query executed. Rows affected = " + changes);
+                //Sending a log to the logging handler
+                logger.log("EXITING: delete() Inside SicknessDAO.ts");
+                // Do a callback to return the results
+                callback(changes);
+            });
+        } catch (error)
+        {
+            //Sending a log to the logging handler
+            logger.log("ERROR: Something went wrong deleting a sickness: " + error);
+            logger.log("EXITING: delete() Inside SicknessDAO.ts");
+            callback(0);
+        }
     }
 
     //* **************** Private Helper Methods **************** */

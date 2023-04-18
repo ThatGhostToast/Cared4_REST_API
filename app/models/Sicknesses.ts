@@ -102,6 +102,15 @@ export class Sicknesses
     private commonTargets: string = "";
 
     /**
+     * The image associated with the illness
+     *
+     * @private
+     * @type {string}
+     * @memberof Sicknesses
+     */
+    private image: string = "";
+
+    /**
      * Sickness Constructor
      * @constructor
      * @param id Id of the sickness
@@ -116,7 +125,7 @@ export class Sicknesses
      * @param requirements The things required for a user to have the sickness
      * @param commonTargets The people the sickness commonly affects
      */
-    constructor(id:number, name:string, commonName:string, symptoms:string, description:string, rarity:number, severity:number, treatment:string, strongAgainst:string, requirements:string, commonTargets:string)
+    constructor(id:number, name:string, commonName:string, symptoms:string, description:string, rarity:number, severity:number, treatment:string, strongAgainst:string, requirements:string, commonTargets:string, image:string)
     {
         this.id = id;
         this.name = name;
@@ -129,6 +138,7 @@ export class Sicknesses
         this.strongAgainst = strongAgainst;
         this.requirements = requirements;
         this.commonTargets = commonTargets;
+        this.image = image;
     }
 
     //=-=-=-=-=-=-=-=-=-=-=
@@ -352,5 +362,25 @@ export class Sicknesses
     set CommonTargets(commonTargets:string)
     {
         this.commonTargets = commonTargets;
+    }
+
+    /**
+     * Method to get the illness image
+     *
+     * @type {string}
+     * @memberof Sicknesses
+     */
+    get Image():string
+    {
+        return this.image;
+    }
+    /**
+     * Method to set the illness image
+     *
+     * @memberof Sicknesses
+     */
+    set Image(image:string)
+    {
+        this.image = image;
     }
 }
