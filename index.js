@@ -23,10 +23,10 @@ const CryptoJS = require('crypto-js');
 const API_KEY = "*B^NB8p44v1a0fqAiFS1gCJ4ugFoe#du%yPDZ^oTGM3fL79XeI";
 
 // Database configuration
-const dbHost = "localhost"
-const dbPort = 8889;
-const dbUsername = "root"
-const dbPassword = "root"
+const dbHost = "cared4-db.clkzoscxfp7p.us-west-1.rds.amazonaws.com"
+const dbPort = 3306;
+const dbUsername = "admin"
+const dbPassword = "rZyVIklrlBsY81m2G90AwJ1RVWd1"
 
 // Set location of static resources and use the JSON body parser
 app.use(express.static('app/images'))
@@ -118,13 +118,16 @@ app.post('/sicknesses/search/symptoms/:symptoms', function (req, res)
     );
     // Create a new instance of the DAO
     let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
-    //TODO Implement this concept
+    //Getting necessary values to update rarity and severity
+    let conditions, birthday, sex;
     if (req.body.conditions)
     {
-        console.log("BINGUS");
+        conditions = req.body.conditions;
+        birthday = req.body.birthday;
+        sex = req.body.sex;
     }
     // Using the findSicknessBySymptoms function and the Id in the parameters to find a sickness
-    dao.findSicknessBySymptoms(req.params.symptoms, function(sickness)
+    dao.findSicknessBySymptoms(req.params.symptoms, conditions, birthday, sex, function(sickness)
     {
         if (sickness == null) {
             //Sending a log to the logging handler
@@ -148,7 +151,7 @@ app.get('/sicknesses/search/name/:name', function (req, res)
     logger.log("ENTERING: GET /sicknesses/search/name/:name Route for " + req.params.name);
     // Return sicknesses List as JSON, call SicknessDAO.findSicknessByName(), and return JSON array of sicknesses
     // Log the location and the request parameters
-    console.log('In GET /sicknesses/search/sickness/symptoms Route for ' + req.params.name);
+    console.log('In GET /sicknesses/search/sickness/name Route for ' + req.params.name);
     // Create a new instance of the DAO
     let dao = new SicknessDAO(dbHost, dbPort, dbUsername, dbPassword);
     // Using the findSicknessByName function and the name in the parameters to find a sickness
