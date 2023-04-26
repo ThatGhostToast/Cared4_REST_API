@@ -459,11 +459,11 @@ app.post('/users/search/foruser/email/', function (req, res)
                 //Sending a log to the logging handler
                 logger.log("ERROR: USER NOT FOUND");
                 logger.log("EXITING: POST /users/search/user/email Route");
-                res.status(200).json({error: "USER NOT FOUND"}); //If the user was not returned by the DAO, then the user was not found
+                res.status(201).json({error: "USER NOT FOUND"}); //If the user was not returned by the DAO, then the user was not found
             } else {
                 //Sending a log to the logging handler
                 logger.log("EXITING: POST /users/search/user/email Route");
-                res.status(201).json(user); //If the user was returned by the DAO, put the user into the response
+                res.status(200).json(user); //If the user was returned by the DAO, put the user into the response
             }
         });
     } else {
