@@ -394,7 +394,7 @@ app.get('/users', function (req, res)
 })
 
 /** 
- * GET Route that does a wildcard search for all users searching by id from the database
+ * POST Route that does a wildcard search for all users searching by id from the database
  * @param req User request
  * @param res Function response
  */
@@ -468,7 +468,7 @@ app.get('/users/search/user/email/:email', function (req, res)
         });
     } else {
         //Sending a log to the logging handler
-        logger.log("ERROR: UNAUTHORIZED ACCESS");
+        logger.log("ERROR: UNAUTHORIZED ACCESS. USER TRIED ACCESSING WITH AN API KEY OF: " + req.body.key);
         logger.log("EXITING: GET /users/search/user/email/:email Route");
         //If the access is not authorized return error.
         res.status(403).json({ error: "UNAUTHORIZED ACCESS" });
