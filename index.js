@@ -439,7 +439,7 @@ app.post('/users/search/user/:id', function (req, res)
  * @param req User request
  * @param res Function response
  */
-app.post('/users/search/user/email/', function (req, res)
+app.post('/users/search/foruser/email/', function (req, res)
 {
     //Sending a log to the logging handler
     logger.log("ENTERING: GET /users/search/user/email/ Route for " + req.body.email);
