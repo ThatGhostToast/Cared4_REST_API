@@ -439,20 +439,20 @@ app.post('/users/search/user/:id', function (req, res)
  * @param req User request
  * @param res Function response
  */
-app.get('/users/search/user/email/:email', function (req, res)
+app.post('/users/search/user/email/', function (req, res)
 {
     //Sending a log to the logging handler
-    logger.log("ENTERING: GET /users/search/user/email/:email Route for " + req.params.email);
+    logger.log("ENTERING: GET /users/search/user/email/ Route for " + req.body.email);
     // Checking to see if the access is authorized.
     if (req.body.key === API_KEY)
     {
         // Return users List as JSON, call UserDAO.findUserById(), and return JSON array of Users
         // Log the location and the request parameters 
-        console.log('In GET /users/searach/user/email Route for ' + req.params.email);
+        console.log('In GET /users/searach/user/email Route for ' + req.body.email);
         // Create a new instance of the DAO
         let dao = new UserDAO(dbHost, dbPort, dbUsername, dbPassword);
         // Using the findUserByEmail function and using the email sent in as a parameter to find a user in the database
-        dao.findUserByEmail(req.params.email, function(user)
+        dao.findUserByEmail(req.body.email, function(user)
         {
             if (user == null)
             {
@@ -463,13 +463,13 @@ app.get('/users/search/user/email/:email', function (req, res)
             } else {
                 //Sending a log to the logging handler
                 logger.log("EXITING: POST /users/search/user/email Route");
-                res.status(200).json(user); //If the user was returned by the DAO, put the user into the response
+                res.status(201).json(user); //If the user was returned by the DAO, put the user into the response
             }
         });
     } else {
         //Sending a log to the logging handler
         logger.log("ERROR: UNAUTHORIZED ACCESS. USER TRIED ACCESSING WITH AN API KEY OF: " + req.body.key);
-        logger.log("EXITING: GET /users/search/user/email/:email Route");
+        logger.log("EXITING: GET /users/search/user/email/ Route");
         //If the access is not authorized return error.
         res.status(403).json({ error: "UNAUTHORIZED ACCESS" });
     }
